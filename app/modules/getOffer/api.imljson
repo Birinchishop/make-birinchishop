@@ -5,6 +5,9 @@
     "lang": "{{parameters.lang}}"
   },
   "response": {
-    "output": "{{body.data}}"
+    "output": {
+      "{{...}}": "{{omit(body.data, 'created_at')}}",
+      "created_at": "{{parseDate(body.data.created_at, 'YYYY-MM-DDTHH:mm:ssZ')}}"
+    }
   }
 }

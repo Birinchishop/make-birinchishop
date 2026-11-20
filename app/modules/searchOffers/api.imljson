@@ -14,7 +14,10 @@
   "response": {
     "iterate": "{{body.data}}",
     "limit": "{{parameters.limit}}",
-    "output": "{{item}}"
+    "output": {
+      "{{...}}": "{{omit(item, 'created_at')}}",
+      "created_at": "{{parseDate(item.created_at, 'YYYY-MM-DDTHH:mm:ssZ')}}"
+    }
   },
   "pagination": {
     "qs": {

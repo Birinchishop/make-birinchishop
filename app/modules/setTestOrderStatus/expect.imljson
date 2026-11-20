@@ -4,7 +4,7 @@
     "type": "uinteger",
     "label": "Test order ID",
     "required": true,
-    "help": "ID returned by Create an Order with a test key (≥ 2000000000)."
+    "help": "ID returned by Create an order with a test key (≥ 2000000000)."
   },
   {
     "name": "status",
@@ -42,7 +42,7 @@
         "value": "returned"
       },
       {
-        "label": "Cancelled (no payout)",
+        "label": "Canceled (no payout)",
         "value": "cancelled"
       }
     ]

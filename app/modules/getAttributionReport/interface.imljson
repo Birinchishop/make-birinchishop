@@ -16,8 +16,8 @@
   },
   {
     "name": "tracking_since",
-    "type": "date",
-    "label": "Tracking since"
+    "type": "text",
+    "label": "Tracking since (YYYY-MM-DD)"
   },
   {
     "name": "lookback_days",

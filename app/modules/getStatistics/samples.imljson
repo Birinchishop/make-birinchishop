@@ -4,7 +4,7 @@
   "date_to": "2026-11-20",
   "timezone": "Asia/Tashkent",
   "currency": "UZS",
-  "clicks_since": "2026-11-18T00:00:00.000Z",
+  "clicks_since": "2026-11-18",
   "totals": {
     "orders": 40,
     "approved": 22,

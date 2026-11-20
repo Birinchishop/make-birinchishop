@@ -1,5 +1,5 @@
 {
-  "label": "Set a Test Order Status",
+  "label": "Set a test order status",
   "description": "Moves a test order (bsk_test_ key) to another status and sends a signed test event to your webhooks. Works only with test keys.",
   "typeId": 4,
   "crud": "update",

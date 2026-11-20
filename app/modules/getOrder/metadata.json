@@ -1,5 +1,5 @@
 {
-  "label": "Get an Order",
+  "label": "Get an order",
   "description": "Gets an order by ID. The customer phone is always masked.",
   "typeId": 4,
   "crud": "read",

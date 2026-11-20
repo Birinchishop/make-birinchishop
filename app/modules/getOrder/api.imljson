@@ -2,6 +2,10 @@
   "url": "/orders/{{parameters.order_id}}",
   "method": "GET",
   "response": {
-    "output": "{{body.data}}"
+    "output": {
+      "{{...}}": "{{omit(body.data, 'created_at', 'updated_at')}}",
+      "created_at": "{{parseDate(body.data.created_at, 'YYYY-MM-DDTHH:mm:ssZ')}}",
+      "updated_at": "{{parseDate(body.data.updated_at, 'YYYY-MM-DDTHH:mm:ssZ')}}"
+    }
   }
 }

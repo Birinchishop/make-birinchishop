@@ -7,7 +7,7 @@
   },
   "response": {
     "iterate": "{{body.data}}",
-    "limit": 500,
+    "limit": 300,
     "output": {
       "label": "{{item.name}} — {{item.offer_name}} (#{{item.id}})",
       "value": "{{item.id}}"

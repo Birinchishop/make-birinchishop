@@ -2,6 +2,10 @@
   "url": "/me",
   "method": "GET",
   "response": {
-    "output": "{{body.data}}"
+    "output": {
+      "{{...}}": "{{omit(body.data, 'created_at', 'api_key')}}",
+      "created_at": "{{parseDate(body.data.created_at, 'YYYY-MM-DDTHH:mm:ssZ')}}",
+      "api_key": "{{parseDateFields(body.data.api_key)}}"
+    }
   }
 }

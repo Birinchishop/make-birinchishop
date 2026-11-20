@@ -1,5 +1,5 @@
 {
-  "label": "Watch New Orders",
+  "label": "Watch new orders",
   "description": "Triggers when a new order arrives on your account.",
   "typeId": 10,
   "crud": null,

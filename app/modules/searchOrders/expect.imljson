@@ -37,7 +37,7 @@
         "value": "returned"
       },
       {
-        "label": "Cancelled (no payout)",
+        "label": "Canceled (no payout)",
         "value": "cancelled"
       }
     ]
@@ -60,7 +60,7 @@
         "value": "sale"
       },
       {
-        "label": "Rejected (returned, cancelled)",
+        "label": "Rejected (returned, canceled)",
         "value": "rejected"
       }
     ],
@@ -68,21 +68,17 @@
   },
   {
     "name": "date_from",
-    "type": "text",
+    "type": "date",
     "label": "Created from",
-    "validate": {
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-    },
-    "help": "First day (Asia/Tashkent), `YYYY-MM-DD`."
+    "help": "First day (Asia/Tashkent); only the date part is used.",
+    "time": false
   },
   {
     "name": "date_to",
-    "type": "text",
+    "type": "date",
     "label": "Created to",
-    "validate": {
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-    },
-    "help": "Last day (Asia/Tashkent), `YYYY-MM-DD`."
+    "help": "Last day (Asia/Tashkent); only the date part is used.",
+    "time": false
   },
   {
     "name": "updated_since",
@@ -118,12 +114,10 @@
     "name": "limit",
     "type": "uinteger",
     "label": "Limit",
-    "required": true,
-    "default": 100,
+    "default": 10,
     "validate": {
-      "min": 1,
-      "max": 10000
+      "min": 1
     },
-    "help": "Maximum number of bundles this module returns in one execution."
+    "help": "Maximum number of bundles this module returns in one execution. Leave empty to return all results."
   }
 ]

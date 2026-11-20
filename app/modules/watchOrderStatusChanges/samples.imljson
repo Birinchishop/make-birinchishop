@@ -1,9 +1,11 @@
 {
   "event_id": "evt_778950",
   "type": "order.status_changed",
+  "api_version": "v1",
   "event_created_at": "2026-11-22T14:02:00.000Z",
   "order_id": 123456,
   "event_status": "delivered",
+  "event_conversion_status": "sale",
   "previous_status": "shipping",
   "status": "delivered",
   "conversion_status": "sale",

@@ -1,5 +1,5 @@
 {
-  "label": "Create an Order",
+  "label": "Create an order",
   "description": "Creates a REAL cash-on-delivery order for a customer who asked to buy; a call center phones them. Test keys create nothing.",
   "typeId": 4,
   "crud": "create",

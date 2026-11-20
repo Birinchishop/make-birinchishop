@@ -1,5 +1,5 @@
 {
-  "url": "/{{replace(parameters.url, '/^\\//', emptystring)}}",
+  "url": "https://birinchishop.uz/api/{{parameters.url}}",
   "method": "{{parameters.method}}",
   "headers": {
     "{{...}}": "{{toCollection(parameters.headers, 'key', 'value')}}"

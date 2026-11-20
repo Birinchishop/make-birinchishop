@@ -15,7 +15,11 @@
       "type": "id",
       "order": "asc"
     },
-    "output": "{{item}}"
+    "output": {
+      "{{...}}": "{{omit(item, 'created_at', 'order')}}",
+      "created_at": "{{parseDate(item.created_at, 'YYYY-MM-DDTHH:mm:ssZ')}}",
+      "order": "{{parseDateFields(item.order)}}"
+    }
   },
   "pagination": {
     "qs": {

@@ -26,8 +26,8 @@
   },
   {
     "name": "clicks_since",
-    "type": "date",
-    "label": "Click tracking since"
+    "type": "text",
+    "label": "Click tracking since (YYYY-MM-DD)"
   },
   {
     "name": "totals",

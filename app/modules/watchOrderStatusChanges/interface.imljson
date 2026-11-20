@@ -10,6 +10,11 @@
     "label": "Event type"
   },
   {
+    "name": "api_version",
+    "type": "text",
+    "label": "API version"
+  },
+  {
     "name": "event_created_at",
     "type": "date",
     "label": "Event time"
@@ -23,6 +28,11 @@
     "name": "event_status",
     "type": "text",
     "label": "Status in the event"
+  },
+  {
+    "name": "event_conversion_status",
+    "type": "text",
+    "label": "Conversion status in the event"
   },
   {
     "name": "previous_status",

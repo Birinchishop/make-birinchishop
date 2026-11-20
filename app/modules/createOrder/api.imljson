@@ -3,24 +3,16 @@
   "method": "POST",
   "type": "json",
   "headers": {
-    "Idempotency-Key": "{{parameters.idempotency_key}}"
+    "Idempotency-Key": "{{ifempty(parameters.idempotency_key, undefined)}}"
   },
   "body": {
-    "link_id": "{{parameters.link_id}}",
-    "phone": "{{parameters.phone}}",
-    "name": "{{parameters.name}}",
-    "region": "{{parameters.region}}",
-    "variant_id": "{{parameters.variant_id}}",
-    "variant_type_id": "{{parameters.variant_type_id}}",
-    "external_id": "{{parameters.external_id}}",
-    "click_id": "{{parameters.click_id}}",
-    "sub1": "{{parameters.sub1}}",
-    "sub2": "{{parameters.sub2}}",
-    "sub3": "{{parameters.sub3}}",
-    "sub4": "{{parameters.sub4}}",
-    "sub5": "{{parameters.sub5}}"
+    "{{...}}": "{{omit(parameters, 'idempotency_key')}}"
   },
   "response": {
-    "output": "{{body.data}}"
+    "output": {
+      "{{...}}": "{{omit(body.data, 'created_at', 'updated_at')}}",
+      "created_at": "{{parseDate(body.data.created_at, 'YYYY-MM-DDTHH:mm:ssZ')}}",
+      "updated_at": "{{parseDate(body.data.updated_at, 'YYYY-MM-DDTHH:mm:ssZ')}}"
+    }
   }
 }

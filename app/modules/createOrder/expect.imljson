@@ -10,7 +10,6 @@
     "type": "select",
     "label": "Link",
     "options": "rpc://listLinks",
-    "mode": "edit",
     "help": "Your tracking link for the offer; it decides the offer and your payout.",
     "required": true
   },
@@ -45,7 +44,7 @@
     "name": "variant_id",
     "type": "uinteger",
     "label": "Variant ID",
-    "help": "For offers with variants (see Get an Offer → Variants)."
+    "help": "For offers with variants (see Get an offer → Variants)."
   },
   {
     "name": "variant_type_id",
@@ -110,6 +109,6 @@
       "pattern": "^[A-Za-z0-9._:-]*$",
       "max": 128
     },
-    "help": "Strongly recommended: map a stable unique value (lead ID, row ID). Sending the same key again returns the existing order instead of creating a second one, so retries are safe."
+    "help": "Strongly recommended: map a stable unique value (lead ID, row ID). Sending the same key again returns the existing order instead of creating a second one, so retries are safe. Left empty, no key is sent and every run creates a new order."
   }
 ]

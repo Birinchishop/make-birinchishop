@@ -1,5 +1,5 @@
 {
-  "label": "Search Orders",
+  "label": "Search orders",
   "description": "Searches your orders by status, dates, offer, link, external ID or click ID.",
   "typeId": 9,
   "crud": "read",

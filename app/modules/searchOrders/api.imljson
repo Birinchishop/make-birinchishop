@@ -4,9 +4,9 @@
   "qs": {
     "status": "{{parameters.status}}",
     "conversion_status": "{{parameters.conversion_status}}",
-    "date_from": "{{parameters.date_from}}",
-    "date_to": "{{parameters.date_to}}",
-    "updated_since": "{{parameters.updated_since}}",
+    "date_from": "{{if(parameters.date_from, formatDate(parameters.date_from, 'YYYY-MM-DD'), undefined)}}",
+    "date_to": "{{if(parameters.date_to, formatDate(parameters.date_to, 'YYYY-MM-DD'), undefined)}}",
+    "updated_since": "{{if(parameters.updated_since, formatDate(parameters.updated_since, 'YYYY-MM-DDTHH:mm:ssZ'), undefined)}}",
     "offer_id": "{{parameters.offer_id}}",
     "link_id": "{{parameters.link_id}}",
     "external_id": "{{parameters.external_id}}",
@@ -17,7 +17,11 @@
   "response": {
     "iterate": "{{body.data}}",
     "limit": "{{parameters.limit}}",
-    "output": "{{item}}"
+    "output": {
+      "{{...}}": "{{omit(item, 'created_at', 'updated_at')}}",
+      "created_at": "{{parseDate(item.created_at, 'YYYY-MM-DDTHH:mm:ssZ')}}",
+      "updated_at": "{{parseDate(item.updated_at, 'YYYY-MM-DDTHH:mm:ssZ')}}"
+    }
   },
   "pagination": {
     "qs": {

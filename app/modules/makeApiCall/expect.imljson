@@ -4,7 +4,7 @@
     "type": "text",
     "label": "URL",
     "required": true,
-    "help": "Path relative to `https://birinchishop.uz/api/v1/`, e.g. `/offers`. See https://birinchishop.uz/api/v1/docs. Note: `POST /orders` with a live key creates a REAL order."
+    "help": "Enter a path relative to `https://birinchishop.uz/api`. For example: `/v1/offers`. See https://birinchishop.uz/api/v1/docs. Note: `POST /v1/orders` with a live key creates a REAL order."
   },
   {
     "name": "method",
@@ -53,12 +53,12 @@
         "value": "application/json"
       }
     ],
-    "help": "Authorization is added automatically."
+    "help": "You don't have to add authorization headers; we already did that for you."
   },
   {
     "name": "qs",
     "type": "array",
-    "label": "Query String",
+    "label": "Query string",
     "spec": [
       {
         "name": "key",

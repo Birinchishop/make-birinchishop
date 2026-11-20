@@ -1,18 +1,19 @@
 {
-  "url": "/orders/{{payload.order_id}}",
+  "url": "/orders/{{payload.data.order_id}}",
   "method": "GET",
   "response": {
     "output": {
-      "event_id": "{{payload.event_id}}",
-      "type": "{{payload.type}}",
-      "event_created_at": "{{payload.created_at}}",
-      "order_id": "{{payload.order_id}}",
-      "event_status": "{{payload.status}}",
-      "previous_status": "{{payload.previous_status}}",
+      "{{...}}": "{{omit(payload, 'id', 'created_at', 'test', 'data')}}",
+      "event_id": "{{payload.id}}",
+      "event_created_at": "{{parseDate(payload.created_at, 'YYYY-MM-DDTHH:mm:ssZ')}}",
+      "order_id": "{{payload.data.order_id}}",
+      "event_status": "{{payload.data.status}}",
+      "event_conversion_status": "{{payload.data.conversion_status}}",
+      "previous_status": "{{payload.data.previous_status}}",
       "status": "{{body.data.status}}",
       "conversion_status": "{{body.data.conversion_status}}",
-      "test": "{{payload.test}}",
-      "order": "{{body.data}}"
+      "test": "{{payload.test === true}}",
+      "order": "{{parseDateFields(body.data)}}"
     }
   }
 }

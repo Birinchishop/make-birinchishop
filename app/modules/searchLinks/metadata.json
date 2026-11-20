@@ -1,5 +1,5 @@
 {
-  "label": "Search Links",
+  "label": "Search links",
   "description": "Lists your tracking links, optionally for one offer (newest first).",
   "typeId": 9,
   "crud": "read",

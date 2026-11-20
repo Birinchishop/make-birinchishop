@@ -2,19 +2,16 @@
   "url": "/stats/attribution",
   "method": "GET",
   "qs": {
-    "date_from": "{{parameters.date_from}}",
-    "date_to": "{{parameters.date_to}}"
+    "date_from": "{{if(parameters.date_from, formatDate(parameters.date_from, 'YYYY-MM-DD'), undefined)}}",
+    "date_to": "{{if(parameters.date_to, formatDate(parameters.date_to, 'YYYY-MM-DD'), undefined)}}"
   },
   "response": {
     "output": {
+      "{{...}}": "{{omit(body.data, 'paths')}}",
+      "paths": "{{parseDateFields(body.data.paths)}}",
       "date_from": "{{body.meta.date_from}}",
       "date_to": "{{body.meta.date_to}}",
-      "timezone": "{{body.meta.timezone}}",
-      "tracking_since": "{{body.data.tracking_since}}",
-      "lookback_days": "{{body.data.lookback_days}}",
-      "summary": "{{body.data.summary}}",
-      "links": "{{body.data.links}}",
-      "paths": "{{body.data.paths}}"
+      "timezone": "{{body.meta.timezone}}"
     }
   }
 }

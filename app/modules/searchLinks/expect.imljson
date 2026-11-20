@@ -10,12 +10,10 @@
     "name": "limit",
     "type": "uinteger",
     "label": "Limit",
-    "required": true,
-    "default": 100,
+    "default": 10,
     "validate": {
-      "min": 1,
-      "max": 1000
+      "min": 1
     },
-    "help": "Maximum number of bundles this module returns in one execution."
+    "help": "Maximum number of bundles this module returns in one execution. Leave empty to return all results."
   }
 ]

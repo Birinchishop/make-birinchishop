@@ -2,8 +2,8 @@
   {
     "name": "apiKey",
     "type": "password",
-    "label": "API Key",
+    "label": "API key",
     "required": true,
-    "help": "Create a key in the [Birinchishop partner panel](https://birinchishop.uz/dashboard/api) (Dashboard → API) and grant `account:read` plus the scopes your scenarios use (`webhooks:manage` for instant triggers). A live key (`bsk_live_...`) acts on your real account: **Create an Order submits a REAL order** that a call center phones. A test key (`bsk_test_...`) reads real data but creates nothing — use it while building scenarios. Do not set an IP allowlist on a key used in Make."
+    "help": "Create a key in the [Birinchishop partner panel](https://birinchishop.uz/dashboard/api) (Dashboard → API) and grant `account:read` plus the scopes your scenarios use (`webhooks:manage` for instant triggers). A live key (`bsk_live_...`) acts on your real account: **Create an order submits a REAL order** that a call center phones. A test key (`bsk_test_...`) reads real data but creates nothing — use it while building scenarios. Do not set an IP allowlist on a key used in Make."
   }
 ]

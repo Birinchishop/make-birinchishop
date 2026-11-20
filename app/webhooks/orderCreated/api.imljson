@@ -8,13 +8,7 @@
     }
   },
   "output": {
-    "event_id": "{{body.id}}",
-    "type": "{{body.type}}",
-    "api_version": "{{body.api_version}}",
-    "created_at": "{{body.created_at}}",
-    "order_id": "{{body.data.order_id}}",
-    "status": "{{body.data.status}}",
-    "previous_status": "{{body.data.previous_status}}",
-    "test": "{{body.test === true}}"
+    "{{...}}": "{{omit(body, 'data')}}",
+    "data": "{{omit(body.data, 'order')}}"
   }
 }

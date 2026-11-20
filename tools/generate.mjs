@@ -9,11 +9,33 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', 'app');
 const API = 'https://birinchishop.uz/api/v1';
+const API_ROOT = 'https://birinchishop.uz/api'; // universal module: the user's path starts with the version (/v1/...)
 const CONNECTION = 'birinchishop';
 const UA = 'birinchishop-make/1.0';
 
 const files = new Map();
 const put = (path, data) => files.set(path, `${JSON.stringify(data, null, 2)}\n`);
+const putText = (path, text) => files.set(path, text.endsWith('\n') ? text : `${text}\n`);
+
+// ─── Dates in the output ──────────────────────────────────────────────
+// The API returns timestamps as ISO 8601 UTC strings (e.g. 2026-11-20T09:15:00.000Z) and
+// date-only values as YYYY-MM-DD (those stay text). Top-level timestamps are parsed with
+// parseDate; nested ones (inside `order`, `api_key`, `paths[]`) with the custom IML function
+// parseDateFields (app/functions), which converts `*_at` / `at` keys at any depth.
+const DATE_FMT = 'YYYY-MM-DDTHH:mm:ssZ';
+const parsed = (expr) => `{{parseDate(${expr}, '${DATE_FMT}')}}`;
+const parsedNested = (expr) => `{{parseDateFields(${expr})}}`;
+/** Whole object as returned by the API, with its timestamps parsed. */
+function withDates(src, dateKeys, nestedKeys = []) {
+  const omitted = [...dateKeys, ...nestedKeys].map((k) => `'${k}'`).join(', ');
+  return {
+    '{{...}}': `{{omit(${src}, ${omitted})}}`,
+    ...Object.fromEntries(dateKeys.map((k) => [k, parsed(`${src}.${k}`)])),
+    ...Object.fromEntries(nestedKeys.map((k) => [k, parsedNested(`${src}.${k}`)])),
+  };
+}
+/** Optional date parameter → formatted string, or not sent at all when empty. */
+const fmtParam = (name, format) => `{{if(parameters.${name}, formatDate(parameters.${name}, '${format}'), undefined)}}`;
 
 // ─── Field helpers (Make parameter definitions) ───────────────────────
 
@@ -26,10 +48,13 @@ const date = (name, label, extra) => f(name, 'date', label, extra);
 const coll = (name, label, spec, extra) => f(name, 'collection', label, { spec, ...extra });
 const arr = (name, label, spec, extra) => f(name, 'array', label, { spec, ...extra });
 const opts = (map) => Object.entries(map).map(([value, label]) => ({ label, value }));
-const limit = (def = 100, max = 1000) =>
-  uint('limit', 'Limit', { required: true, default: def, validate: { min: 1, max }, help: 'Maximum number of bundles this module returns in one execution.' });
-const dayParam = (name, label, help) =>
-  text(name, label, { validate: { pattern: '^\\d{4}-\\d{2}-\\d{2}$' }, help });
+// Search modules: optional (empty = all results), default 10. Polling trigger: required, default 2.
+const searchLimit = () =>
+  uint('limit', 'Limit', { default: 10, validate: { min: 1 }, help: 'Maximum number of bundles this module returns in one execution. Leave empty to return all results.' });
+const triggerLimit = () =>
+  uint('limit', 'Limit', { required: true, default: 2, validate: { min: 1 }, help: 'Maximum number of bundles this module returns in one execution.' });
+// Day filters of the API are calendar days (Asia/Tashkent), sent as YYYY-MM-DD.
+const dayParam = (name, label, help) => date(name, label, { help, time: false });
 
 const ORDER_STATUSES = {
   new: 'New (waiting for the call center)',
@@ -40,13 +65,13 @@ const ORDER_STATUSES = {
   shipping: 'Shipping',
   delivered: 'Delivered (payout earned)',
   returned: 'Returned (refused at delivery)',
-  cancelled: 'Cancelled (no payout)',
+  cancelled: 'Canceled (no payout)',
 };
 const CONVERSIONS = {
   lead: 'Lead (new, processing, callback)',
   approved: 'Approved (confirmed, packed, shipping)',
   sale: 'Sale (delivered)',
-  rejected: 'Rejected (returned, cancelled)',
+  rejected: 'Rejected (returned, canceled)',
 };
 const SORTS = {
   recommended: 'Recommended',
@@ -233,6 +258,17 @@ put('metadata.json', {
   private: true,
 });
 
+// Error text: the API always answers { error: { code, message }, request_id }; a proxy error
+// (e.g. 502) has no such body, so every part has a fallback.
+const ERR_MSG = "{{ifempty(body.error.message, 'Unexpected response')}}";
+const ERR_CODE = "{{ifempty(body.error.code, 'none')}}";
+const ERR_REQ = "{{ifempty(body.request_id, 'none')}}";
+const errText = (status) => `[${status}] ${ERR_MSG} (code: ${ERR_CODE}, request ID: ${ERR_REQ})`;
+// 403 codes that mean the key/account setup is wrong for EVERY run (scenario should stop);
+// any other 403 (orders_write_not_allowed, or an unknown/proxy 403) concerns this request only.
+const CONFIG_403 = ['insufficient_scope', 'not_available_in_test_mode', 'ip_not_allowed', 'account_blocked', 'test_mode_only'];
+const type403 = `{{if(${CONFIG_403.map((c) => `body.error.code === '${c}'`).join(' || ')}, 'InvalidConfigurationError', 'DataError')}}`;
+
 put('base.imljson', {
   baseUrl: API,
   headers: {
@@ -242,20 +278,21 @@ put('base.imljson', {
   },
   response: {
     error: {
-      message: '[{{statusCode}}] {{body.error.message}} (code: {{body.error.code}}, request ID: {{body.request_id}})',
-      400: { type: 'DataError', message: '[400] {{body.error.message}} (code: {{body.error.code}}, request ID: {{body.request_id}})' },
-      401: { type: 'InvalidAccessTokenError', message: '[401] {{body.error.message}} (code: {{body.error.code}}). Check or recreate the API key in Dashboard → API.' },
-      403: { type: 'InvalidConfigurationError', message: '[403] {{body.error.message}} (code: {{body.error.code}}, request ID: {{body.request_id}}). For insufficient_scope, grant the scope to the key in Dashboard → API.' },
-      409: { type: 'DuplicateDataError', message: '[409] {{body.error.message}} (code: {{body.error.code}}, request ID: {{body.request_id}}). Do not retry this request.' },
+      message: errText('{{statusCode}}'),
+      400: { type: 'DataError', message: errText(400) },
+      401: { type: 'InvalidAccessTokenError', message: `[401] ${ERR_MSG} (code: ${ERR_CODE}). Check or recreate the API key in Dashboard → API.` },
+      403: { type: type403, message: `${errText(403)}. For insufficient_scope, grant the scope to the key in Dashboard → API.` },
+      409: { type: 'DuplicateDataError', message: `${errText(409)}. Do not retry this request.` },
     },
   },
   log: { sanitize: SANITIZE },
 });
 
+// Within a group: triggers (instant first), then Search → Get → Create → Update.
 put('groups.json', [
-  { label: 'Orders', modules: ['watchNewOrders', 'watchOrderStatusChanges', 'watchOrderEvents', 'createOrder', 'getOrder', 'searchOrders', 'setTestOrderStatus'] },
-  { label: 'Links', modules: ['createLink', 'searchLinks'] },
-  { label: 'Offers', modules: ['getOffer', 'searchOffers'] },
+  { label: 'Orders', modules: ['watchNewOrders', 'watchOrderStatusChanges', 'watchOrderEvents', 'searchOrders', 'getOrder', 'createOrder', 'setTestOrderStatus'] },
+  { label: 'Links', modules: ['searchLinks', 'createLink'] },
+  { label: 'Offers', modules: ['searchOffers', 'getOffer'] },
   { label: 'Reports', modules: ['getStatistics', 'getCohortReport', 'getAttributionReport', 'getAccount'] },
   { label: 'Other', modules: ['makeApiCall'] },
 ]);
@@ -264,11 +301,11 @@ put('groups.json', [
 
 put(`connections/${CONNECTION}/metadata.json`, { type: 'basic', label: 'Birinchishop' });
 put(`connections/${CONNECTION}/parameters.imljson`, [
-  f('apiKey', 'password', 'API Key', {
+  f('apiKey', 'password', 'API key', {
     required: true,
     help:
       'Create a key in the [Birinchishop partner panel](https://birinchishop.uz/dashboard/api) (Dashboard → API) and grant `account:read` plus the scopes your scenarios use (`webhooks:manage` for instant triggers). ' +
-      'A live key (`bsk_live_...`) acts on your real account: **Create an Order submits a REAL order** that a call center phones. ' +
+      'A live key (`bsk_live_...`) acts on your real account: **Create an order submits a REAL order** that a call center phones. ' +
       'A test key (`bsk_test_...`) reads real data but creates nothing — use it while building scenarios. Do not set an IP allowlist on a key used in Make.',
   }),
 ]);
@@ -278,7 +315,7 @@ put(`connections/${CONNECTION}/api.imljson`, {
   headers: { Authorization: 'Bearer {{parameters.apiKey}}', Accept: 'application/json', 'User-Agent': UA },
   response: {
     metadata: { type: 'text', value: '{{body.data.name}} ({{body.data.api_key.mode}} key)' },
-    error: { message: '[{{statusCode}}] {{body.error.message}} (code: {{body.error.code}})' },
+    error: { message: `[{{statusCode}}] ${ERR_MSG} (code: ${ERR_CODE})` },
   },
   log: { sanitize: SANITIZE },
 });
@@ -286,48 +323,100 @@ put(`connections/${CONNECTION}/api.imljson`, {
 // ─── Webhooks (dedicated, attached) ───────────────────────────────────
 
 /**
- * The webhook receiver keeps only event metadata. It does not pass the unverified order
- * body on: the instant trigger re-reads the order from the API with the user's key.
+ * The webhook receiver passes on the whole payload EXCEPT the unverified order body
+ * (`data.order`): the instant trigger re-reads the order from the API with the user's key.
  * `condition` drops the panel's synthetic "Send test" request (order id 0).
+ * attach/detach inherit the base URL, Authorization header and its log sanitization from the Base.
  */
 function webhook(name, label, eventType) {
   put(`webhooks/${name}/metadata.json`, { type: 'web', label, accountName: CONNECTION });
   put(`webhooks/${name}/parameters.imljson`, []);
   put(`webhooks/${name}/attach.imljson`, {
-    url: `${API}/webhooks`,
+    url: '/webhooks',
     method: 'POST',
-    headers: { Authorization: 'Bearer {{connection.apiKey}}', Accept: 'application/json', 'User-Agent': UA },
     type: 'json',
     body: { url: '{{webhook.url}}', kind: 'json', events: [eventType], description: `Make: ${label}` },
     response: {
       data: { externalHookId: '{{body.data.id}}', secret: '{{body.data.secret}}' },
-      error: { message: '[{{statusCode}}] {{body.error.message}} (code: {{body.error.code}}). The account can have at most 10 webhooks; remove unused ones in Dashboard → API → Webhooks.' },
+      error: { message: `[{{statusCode}}] ${ERR_MSG} (code: ${ERR_CODE}). The account can have at most 10 webhooks; remove unused ones in Dashboard → API → Webhooks.` },
     },
-    log: { sanitize: [...SANITIZE, 'request.body.url', 'response.body.data.secret', 'response.body.data.url'] },
+    log: { sanitize: ['request.body.url', 'response.body.data.secret', 'response.body.data.url'] },
   });
   put(`webhooks/${name}/detach.imljson`, {
-    url: `${API}/webhooks/{{webhook.externalHookId}}`,
+    url: '/webhooks/{{webhook.externalHookId}}',
     method: 'DELETE',
-    headers: { Authorization: 'Bearer {{connection.apiKey}}', Accept: 'application/json', 'User-Agent': UA },
-    log: { sanitize: SANITIZE },
   });
   put(`webhooks/${name}/api.imljson`, {
     condition: `{{body.type === '${eventType}' && body.data.order_id > 0}}`,
     respond: { status: 200, type: 'json', body: { received: true } },
     output: {
-      event_id: '{{body.id}}',
-      type: '{{body.type}}',
-      api_version: '{{body.api_version}}',
-      created_at: '{{body.created_at}}',
-      order_id: '{{body.data.order_id}}',
-      status: '{{body.data.status}}',
-      previous_status: '{{body.data.previous_status}}',
-      test: '{{body.test === true}}',
+      '{{...}}': "{{omit(body, 'data')}}",
+      data: "{{omit(body.data, 'order')}}",
     },
   });
 }
 webhook('orderCreated', 'Birinchishop: order created', 'order.created');
 webhook('orderStatusChanged', 'Birinchishop: order status changed', 'order.status_changed');
+
+// ─── Custom IML functions ─────────────────────────────────────────────
+// Make: App → Functions → name + code (one `function <name>(...)`) + test (`it` / `assert`).
+
+putText('functions/parseDateFields/code.js', `function parseDateFields(value) {
+    // Parses ISO 8601 timestamps (e.g. "2026-11-20T09:15:00.000Z") in keys named "at" or
+    // ending in "_at", at any depth, into dates. Everything else is returned unchanged:
+    // other keys, date-only values ("2026-11-20"), null, and strings that are not a valid timestamp.
+    const ISO = /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?(Z|[+-]\\d{2}:?\\d{2})$/;
+    const isDateKey = (key) => key === 'at' || /_at$/.test(key);
+    const walk = (v, depth) => {
+        if (depth > 20 || v === null || typeof v !== 'object' || v instanceof Date) return v;
+        if (Array.isArray(v)) return v.map((item) => walk(item, depth + 1));
+        const out = {};
+        for (const key of Object.keys(v)) {
+            const item = v[key];
+            if (isDateKey(key) && typeof item === 'string' && ISO.test(item)) {
+                const d = new Date(item);
+                out[key] = isNaN(d.getTime()) ? item : d;
+            } else {
+                out[key] = walk(item, depth + 1);
+            }
+        }
+        return out;
+    };
+    return walk(value, 0);
+}
+`);
+putText('functions/parseDateFields/test.js', `it('parses *_at and at keys at any depth', () => {
+    const r = parseDateFields({
+        id: 1,
+        created_at: '2026-11-20T09:15:00.000Z',
+        api_key: { expires_at: '2026-12-01T00:00:00Z' },
+        paths: [{ ordered_at: '2026-11-19T10:00:00.000Z', steps: [{ at: '2026-11-18T08:30:00+05:00', role: 'first' }] }],
+    });
+    assert.ok(r.created_at instanceof Date);
+    assert.strictEqual(r.created_at.toISOString(), '2026-11-20T09:15:00.000Z');
+    assert.ok(r.api_key.expires_at instanceof Date);
+    assert.ok(r.paths[0].ordered_at instanceof Date);
+    assert.strictEqual(r.paths[0].steps[0].at.toISOString(), '2026-11-18T03:30:00.000Z');
+    assert.strictEqual(r.paths[0].steps[0].role, 'first');
+    assert.strictEqual(r.id, 1);
+});
+
+it('leaves other values unchanged', () => {
+    const r = parseDateFields({ expires_at: null, delivery_date: '2026-11-22', updated_at: 'soon', note: '2026-11-20T09:15:00Z', created_at: '' });
+    assert.strictEqual(r.expires_at, null);
+    assert.strictEqual(r.delivery_date, '2026-11-22');
+    assert.strictEqual(r.updated_at, 'soon');
+    assert.strictEqual(r.note, '2026-11-20T09:15:00Z');
+    assert.strictEqual(r.created_at, '');
+});
+
+it('accepts empty and non-object input', () => {
+    assert.strictEqual(parseDateFields(null), null);
+    assert.strictEqual(parseDateFields(undefined), undefined);
+    assert.strictEqual(parseDateFields('x'), 'x');
+    assert.deepStrictEqual(parseDateFields([]), []);
+});
+`);
 
 // ─── RPCs (dropdowns) ─────────────────────────────────────────────────
 
@@ -339,7 +428,7 @@ put('rpcs/listOffers/api.imljson', {
   qs: { in_stock_only: 'true', sort: 'recommended', limit: 100, page: 1 },
   response: {
     iterate: '{{body.data}}',
-    limit: 500,
+    limit: 300,
     output: { label: '{{item.name}} — payout {{item.payout}} UZS (#{{item.id}})', value: '{{item.id}}' },
   },
   pagination: pagePagination,
@@ -353,7 +442,7 @@ put('rpcs/listLinks/api.imljson', {
   qs: { limit: 100, page: 1 },
   response: {
     iterate: '{{body.data}}',
-    limit: 500,
+    limit: 300,
     output: { label: '{{item.name}} — {{item.offer_name}} (#{{item.id}})', value: '{{item.id}}' },
   },
   pagination: pagePagination,
@@ -376,12 +465,17 @@ function module(name, { type, crud = null, label, description, hookName = null, 
 }
 
 // Instant triggers: one enrichment request re-reads the order with the user's key.
+// The webhook payload is spread into the output (api_version and any field added later),
+// except `id`, `created_at`, `test` and `data`, which keep their established output names below.
+// The order itself (and its current status) always comes from the authenticated API response.
 const INSTANT_SPEC = [
   text('event_id', 'Event ID'),
   text('type', 'Event type'),
+  text('api_version', 'API version'),
   date('event_created_at', 'Event time'),
   uint('order_id', 'Order ID'),
   text('event_status', 'Status in the event'),
+  text('event_conversion_status', 'Conversion status in the event'),
   text('previous_status', 'Previous status'),
   text('status', 'Current status'),
   text('conversion_status', 'Current conversion status'),
@@ -389,20 +483,21 @@ const INSTANT_SPEC = [
   coll('order', 'Order (current, read from the API)', ORDER_SPEC),
 ];
 const instantApi = {
-  url: '/orders/{{payload.order_id}}',
+  url: '/orders/{{payload.data.order_id}}',
   method: 'GET',
   response: {
     output: {
-      event_id: '{{payload.event_id}}',
-      type: '{{payload.type}}',
-      event_created_at: '{{payload.created_at}}',
-      order_id: '{{payload.order_id}}',
-      event_status: '{{payload.status}}',
-      previous_status: '{{payload.previous_status}}',
+      '{{...}}': "{{omit(payload, 'id', 'created_at', 'test', 'data')}}",
+      event_id: '{{payload.id}}',
+      event_created_at: parsed('payload.created_at'),
+      order_id: '{{payload.data.order_id}}',
+      event_status: '{{payload.data.status}}',
+      event_conversion_status: '{{payload.data.conversion_status}}',
+      previous_status: '{{payload.data.previous_status}}',
       status: '{{body.data.status}}',
       conversion_status: '{{body.data.conversion_status}}',
-      test: '{{payload.test}}',
-      order: '{{body.data}}',
+      test: '{{payload.test === true}}',
+      order: parsedNested('body.data'),
     },
   },
 };
@@ -410,34 +505,34 @@ const instantBanner = {
   name: 'about',
   type: 'banner',
   title: 'Instant trigger',
-  text: 'Saving the scenario registers a signed webhook on your account (API key scope `webhooks:manage`, at most 10 per account); turning it off or deleting it removes the webhook. Each event is re-read from the API with your key before it reaches the scenario.',
+  text: 'Creating the webhook registers it on your account (API key scope `webhooks:manage`, at most 10 per account). To remove the registration, delete the webhook in Make\'s Webhooks section. Each event is re-read from the API with your key before it reaches the scenario.',
 };
 
 module('watchNewOrders', {
   type: 'instant',
-  label: 'Watch New Orders',
+  label: 'Watch new orders',
   description: 'Triggers when a new order arrives on your account.',
   hookName: 'orderCreated',
   api: instantApi,
   parameters: [instantBanner],
   interface: INSTANT_SPEC,
   samples: {
-    event_id: 'evt_778899', type: 'order.created', event_created_at: '2026-11-20T09:15:00.000Z', order_id: 123456,
-    event_status: 'new', previous_status: null, status: 'new', conversion_status: 'lead', test: false, order: ORDER_SAMPLE,
+    event_id: 'evt_778899', type: 'order.created', api_version: 'v1', event_created_at: '2026-11-20T09:15:00.000Z', order_id: 123456,
+    event_status: 'new', event_conversion_status: 'lead', previous_status: null, status: 'new', conversion_status: 'lead', test: false, order: ORDER_SAMPLE,
   },
 });
 
 module('watchOrderStatusChanges', {
   type: 'instant',
-  label: 'Watch Order Status Changes',
-  description: 'Triggers when an order moves to another status (confirmed, shipping, delivered, returned, cancelled...).',
+  label: 'Watch order status changes',
+  description: 'Triggers when an order moves to another status (confirmed, shipping, delivered, returned, canceled...).',
   hookName: 'orderStatusChanged',
   api: instantApi,
   parameters: [instantBanner],
   interface: INSTANT_SPEC,
   samples: {
-    event_id: 'evt_778950', type: 'order.status_changed', event_created_at: '2026-11-22T14:02:00.000Z', order_id: 123456,
-    event_status: 'delivered', previous_status: 'shipping', status: 'delivered', conversion_status: 'sale', test: false,
+    event_id: 'evt_778950', type: 'order.status_changed', api_version: 'v1', event_created_at: '2026-11-22T14:02:00.000Z', order_id: 123456,
+    event_status: 'delivered', event_conversion_status: 'sale', previous_status: 'shipping', status: 'delivered', conversion_status: 'sale', test: false,
     order: { ...ORDER_SAMPLE, status: 'delivered', conversion_status: 'sale', updated_at: '2026-11-22T14:02:00.000Z' },
   },
 });
@@ -462,10 +557,13 @@ const eventTypeParam = f('type', 'select', 'Event type', {
   help: 'Leave empty for both.',
 });
 
+// GET /events supports only ascending order with an `after` cursor (no descending order).
+// The cursor is the last processed event ID (data.lastId), so every request returns only
+// events newer than the last run: the 3200-record limit of ascending order does not apply.
 module('watchOrderEvents', {
   type: 'trigger',
   crud: 'read',
-  label: 'Watch Order Events',
+  label: 'Watch order events',
   description: 'Triggers when an order is created or changes status (polling the event feed; no webhook needed).',
   api: {
     url: '/events',
@@ -475,7 +573,7 @@ module('watchOrderEvents', {
       iterate: '{{body.data}}',
       limit: '{{parameters.limit}}',
       trigger: { id: '{{item.id}}', type: 'id', order: 'asc' },
-      output: '{{item}}',
+      output: withDates('item', ['created_at'], ['order']),
     },
     pagination: {
       qs: { after: '{{body.meta.next_cursor}}' },
@@ -484,12 +582,12 @@ module('watchOrderEvents', {
   },
   parameters: [
     eventTypeParam,
-    limit(100, 1000),
+    triggerLimit(),
     {
       name: 'about',
       type: 'banner',
       title: 'Event feed',
-      text: 'Reads `GET /events` in order, continuing after the last processed event. The feed keeps 90 days; the first run starts at the oldest kept event and returns at most Limit events per run. Needs the `events:read` and `orders:read` scopes. Prefer the instant triggers when your key can manage webhooks.',
+      text: 'Reads `GET /events` oldest first and continues after the last event this module processed, so each run gets only newer events (at most Limit per run). The feed keeps 90 days; the first run starts at the oldest kept event. Needs the `events:read` and `orders:read` scopes. Prefer the instant triggers when your key can manage webhooks.',
     },
   ],
   interface: EVENT_SPEC,
@@ -499,29 +597,17 @@ module('watchOrderEvents', {
 module('createOrder', {
   type: 'action',
   crud: 'create',
-  label: 'Create an Order',
+  label: 'Create an order',
   description: 'Creates a REAL cash-on-delivery order for a customer who asked to buy; a call center phones them. Test keys create nothing.',
   api: {
     url: '/orders',
     method: 'POST',
     type: 'json',
-    headers: { 'Idempotency-Key': '{{parameters.idempotency_key}}' },
-    body: {
-      link_id: '{{parameters.link_id}}',
-      phone: '{{parameters.phone}}',
-      name: '{{parameters.name}}',
-      region: '{{parameters.region}}',
-      variant_id: '{{parameters.variant_id}}',
-      variant_type_id: '{{parameters.variant_type_id}}',
-      external_id: '{{parameters.external_id}}',
-      click_id: '{{parameters.click_id}}',
-      sub1: '{{parameters.sub1}}',
-      sub2: '{{parameters.sub2}}',
-      sub3: '{{parameters.sub3}}',
-      sub4: '{{parameters.sub4}}',
-      sub5: '{{parameters.sub5}}',
-    },
-    response: { output: '{{body.data}}' },
+    // The header is not sent at all when the field is empty (no key = no idempotency).
+    headers: { 'Idempotency-Key': '{{ifempty(parameters.idempotency_key, undefined)}}' },
+    // Parameter names are the API's body keys; the banner is never submitted.
+    body: { '{{...}}': "{{omit(parameters, 'idempotency_key')}}" },
+    response: { output: withDates('body.data', ['created_at', 'updated_at']) },
   },
   expect: [
     {
@@ -532,11 +618,11 @@ module('createOrder', {
         'With a live key a call center phones the customer and a courier delivers the product (cash on delivery). Send only real customers who asked to order, with their correct phone number. ' +
         '**Never send test, sample or fake orders — the account gets blocked.** Build and test with a test key (`bsk_test_...`): it runs every check but creates nothing.',
     },
-    linkSelect({ required: true, help: 'Your tracking link for the offer; it decides the offer and your payout.' }),
+    linkSelect({ required: true, mode: undefined, help: 'Your tracking link for the offer; it decides the offer and your payout.' }),
     text('phone', 'Customer phone', { required: true, validate: { pattern: '^[+0-9 ()-]{9,20}$' }, help: 'Uzbekistan mobile number, e.g. `+998901234567`.' }),
     text('name', 'Customer name', { validate: { max: 100 }, help: 'Default: "Mijoz" plus the last 4 digits of the phone.' }),
     text('region', 'Region', { validate: { max: 64 } }),
-    uint('variant_id', 'Variant ID', { help: 'For offers with variants (see Get an Offer → Variants).' }),
+    uint('variant_id', 'Variant ID', { help: 'For offers with variants (see Get an offer → Variants).' }),
     uint('variant_type_id', 'Variant type ID', { help: 'Required when the chosen variant has types (e.g. size).' }),
     text('external_id', 'External ID', { validate: { pattern: '^[A-Za-z0-9._:-]*$', max: 128 }, help: 'Your own lead ID; returned in events and searchable.' }),
     text('click_id', 'Click ID', { validate: { max: 255 }, help: 'Tracker click ID; returned in events and postbacks.' }),
@@ -547,7 +633,7 @@ module('createOrder', {
     text('sub5', 'Sub5', { advanced: true }),
     text('idempotency_key', 'Idempotency key', {
       validate: { pattern: '^[A-Za-z0-9._:-]*$', max: 128 },
-      help: 'Strongly recommended: map a stable unique value (lead ID, row ID). Sending the same key again returns the existing order instead of creating a second one, so retries are safe.',
+      help: 'Strongly recommended: map a stable unique value (lead ID, row ID). Sending the same key again returns the existing order instead of creating a second one, so retries are safe. Left empty, no key is sent and every run creates a new order.',
     }),
   ],
   interface: ORDER_SPEC,
@@ -557,9 +643,9 @@ module('createOrder', {
 module('getOrder', {
   type: 'action',
   crud: 'read',
-  label: 'Get an Order',
+  label: 'Get an order',
   description: 'Gets an order by ID. The customer phone is always masked.',
-  api: { url: '/orders/{{parameters.order_id}}', method: 'GET', response: { output: '{{body.data}}' } },
+  api: { url: '/orders/{{parameters.order_id}}', method: 'GET', response: { output: withDates('body.data', ['created_at', 'updated_at']) } },
   expect: [uint('order_id', 'Order ID', { required: true, help: 'Test orders (test keys) are kept for 24 hours.' })],
   interface: ORDER_SPEC,
   samples: ORDER_SAMPLE,
@@ -568,7 +654,7 @@ module('getOrder', {
 module('searchOrders', {
   type: 'search',
   crud: 'read',
-  label: 'Search Orders',
+  label: 'Search orders',
   description: 'Searches your orders by status, dates, offer, link, external ID or click ID.',
   api: {
     url: '/orders',
@@ -576,9 +662,9 @@ module('searchOrders', {
     qs: {
       status: '{{parameters.status}}',
       conversion_status: '{{parameters.conversion_status}}',
-      date_from: '{{parameters.date_from}}',
-      date_to: '{{parameters.date_to}}',
-      updated_since: '{{parameters.updated_since}}',
+      date_from: fmtParam('date_from', 'YYYY-MM-DD'),
+      date_to: fmtParam('date_to', 'YYYY-MM-DD'),
+      updated_since: fmtParam('updated_since', DATE_FMT),
       offer_id: '{{parameters.offer_id}}',
       link_id: '{{parameters.link_id}}',
       external_id: '{{parameters.external_id}}',
@@ -586,20 +672,20 @@ module('searchOrders', {
       limit: 100,
       page: 1,
     },
-    response: { iterate: '{{body.data}}', limit: '{{parameters.limit}}', output: '{{item}}' },
+    response: { iterate: '{{body.data}}', limit: '{{parameters.limit}}', output: withDates('item', ['created_at', 'updated_at']) },
     pagination: pagePagination,
   },
   expect: [
     f('status', 'select', 'Status', { options: opts(ORDER_STATUSES) }),
     f('conversion_status', 'select', 'Conversion status', { options: opts(CONVERSIONS), help: 'Ignored when Status is set.' }),
-    dayParam('date_from', 'Created from', 'First day (Asia/Tashkent), `YYYY-MM-DD`.'),
-    dayParam('date_to', 'Created to', 'Last day (Asia/Tashkent), `YYYY-MM-DD`.'),
+    dayParam('date_from', 'Created from', 'First day (Asia/Tashkent); only the date part is used.'),
+    dayParam('date_to', 'Created to', 'Last day (Asia/Tashkent); only the date part is used.'),
     date('updated_since', 'Updated since', { help: 'Only orders updated after this time; results are then sorted by update time (oldest first).' }),
     offerSelect({ mode: undefined }),
     linkSelect({ mode: undefined }),
     text('external_id', 'External ID'),
     text('click_id', 'Click ID'),
-    limit(100, 10000),
+    searchLimit(),
   ],
   interface: ORDER_SPEC,
   samples: ORDER_SAMPLE,
@@ -608,17 +694,17 @@ module('searchOrders', {
 module('setTestOrderStatus', {
   type: 'action',
   crud: 'update',
-  label: 'Set a Test Order Status',
+  label: 'Set a test order status',
   description: 'Moves a test order (bsk_test_ key) to another status and sends a signed test event to your webhooks. Works only with test keys.',
   api: {
     url: '/sandbox/orders/{{parameters.order_id}}/status',
     method: 'POST',
     type: 'json',
     body: { status: '{{parameters.status}}' },
-    response: { output: '{{body.data}}' },
+    response: { output: { '{{...}}': "{{omit(body.data, 'order')}}", order: parsedNested('body.data.order') } },
   },
   expect: [
-    uint('order_id', 'Test order ID', { required: true, help: 'ID returned by Create an Order with a test key (≥ 2000000000).' }),
+    uint('order_id', 'Test order ID', { required: true, help: 'ID returned by Create an order with a test key (≥ 2000000000).' }),
     f('status', 'select', 'New status', { required: true, default: 'delivered', options: opts(Object.fromEntries(Object.entries(ORDER_STATUSES).filter(([k]) => k !== 'new'))) }),
   ],
   interface: [
@@ -636,14 +722,14 @@ module('setTestOrderStatus', {
 module('createLink', {
   type: 'action',
   crud: 'create',
-  label: 'Create a Link',
+  label: 'Create a link',
   description: 'Creates a tracking link for an offer. Test keys create nothing.',
   api: {
     url: '/links',
     method: 'POST',
     type: 'json',
     body: { offer_id: '{{parameters.offer_id}}', name: '{{parameters.name}}' },
-    response: { output: '{{body.data}}' },
+    response: { output: withDates('body.data', ['created_at']) },
   },
   expect: [offerSelect({ required: true, mode: undefined }), text('name', 'Link name', { validate: { max: 100 }, help: 'Your label, e.g. "Instagram reels".' })],
   interface: LINK_SPEC,
@@ -653,16 +739,16 @@ module('createLink', {
 module('searchLinks', {
   type: 'search',
   crud: 'read',
-  label: 'Search Links',
+  label: 'Search links',
   description: 'Lists your tracking links, optionally for one offer (newest first).',
   api: {
     url: '/links',
     method: 'GET',
     qs: { offer_id: '{{parameters.offer_id}}', limit: 100, page: 1 },
-    response: { iterate: '{{body.data}}', limit: '{{parameters.limit}}', output: '{{item}}' },
+    response: { iterate: '{{body.data}}', limit: '{{parameters.limit}}', output: withDates('item', ['created_at']) },
     pagination: pagePagination,
   },
-  expect: [offerSelect({ mode: undefined }), limit(100, 1000)],
+  expect: [offerSelect({ mode: undefined }), searchLimit()],
   interface: LINK_SPEC,
   samples: LINK_SAMPLE,
 });
@@ -670,9 +756,9 @@ module('searchLinks', {
 module('getOffer', {
   type: 'action',
   crud: 'read',
-  label: 'Get an Offer',
+  label: 'Get an offer',
   description: 'Gets an offer with its description, images and variants.',
-  api: { url: '/offers/{{parameters.offer_id}}', method: 'GET', qs: { lang: '{{parameters.lang}}' }, response: { output: '{{body.data}}' } },
+  api: { url: '/offers/{{parameters.offer_id}}', method: 'GET', qs: { lang: '{{parameters.lang}}' }, response: { output: withDates('body.data', ['created_at']) } },
   expect: [offerSelect({ required: true }), f('lang', 'select', 'Language of name and description', { options: opts(LANGS), default: 'uz' })],
   interface: OFFER_FULL_SPEC,
   samples: { ...OFFER_SAMPLE, description: 'Waterproof smart watch...', images: [OFFER_SAMPLE.image_url], variants: [] },
@@ -681,7 +767,7 @@ module('getOffer', {
 module('searchOffers', {
   type: 'search',
   crud: 'read',
-  label: 'Search Offers',
+  label: 'Search offers',
   description: 'Searches offers by name, payout, sale rate and stock.',
   api: {
     url: '/offers',
@@ -696,7 +782,7 @@ module('searchOffers', {
       limit: 100,
       page: 1,
     },
-    response: { iterate: '{{body.data}}', limit: '{{parameters.limit}}', output: '{{item}}' },
+    response: { iterate: '{{body.data}}', limit: '{{parameters.limit}}', output: withDates('item', ['created_at']) },
     pagination: pagePagination,
   },
   expect: [
@@ -706,7 +792,7 @@ module('searchOffers', {
     uint('min_sale_rate', 'Minimum sale rate (%)', { validate: { min: 0, max: 100 } }),
     f('sort', 'select', 'Sort', { options: opts(SORTS), default: 'recommended' }),
     f('lang', 'select', 'Language of names', { options: opts(LANGS), default: 'uz' }),
-    limit(20, 1000),
+    searchLimit(),
   ],
   interface: OFFER_SPEC,
   samples: OFFER_SAMPLE,
@@ -715,46 +801,37 @@ module('searchOffers', {
 module('getStatistics', {
   type: 'action',
   crud: 'read',
-  label: 'Get Statistics',
+  label: 'Get statistics',
   description: 'Gets orders, approvals, deliveries, earnings and clicks for a period (default: last 30 days), with rows per day, offer or link.',
   api: {
     url: '/stats',
     method: 'GET',
     qs: {
       group_by: '{{parameters.group_by}}',
-      date_from: '{{parameters.date_from}}',
-      date_to: '{{parameters.date_to}}',
+      date_from: fmtParam('date_from', 'YYYY-MM-DD'),
+      date_to: fmtParam('date_to', 'YYYY-MM-DD'),
       offer_id: '{{parameters.offer_id}}',
       link_id: '{{parameters.link_id}}',
     },
-    response: {
-      output: {
-        group_by: '{{body.meta.group_by}}',
-        date_from: '{{body.meta.date_from}}',
-        date_to: '{{body.meta.date_to}}',
-        timezone: '{{body.meta.timezone}}',
-        currency: '{{body.meta.currency}}',
-        clicks_since: '{{body.meta.clicks_since}}',
-        totals: '{{body.meta.totals}}',
-        rows: '{{body.data}}',
-      },
-    },
+    // meta (group_by, dates, timezone, currency, clicks_since, totals) as returned; clicks_since is a
+    // date only (YYYY-MM-DD), so it stays text.
+    response: { output: { '{{...}}': '{{body.meta}}', rows: '{{body.data}}' } },
   },
   expect: [
     f('group_by', 'select', 'Group rows by', { required: true, default: 'day', options: opts({ day: 'Day', offer: 'Offer', link: 'Link' }) }),
-    dayParam('date_from', 'Date from', 'First day (Asia/Tashkent), `YYYY-MM-DD`. Default: 29 days before Date to. Max range 366 days.'),
-    dayParam('date_to', 'Date to', 'Last day (Asia/Tashkent), `YYYY-MM-DD`. Default: today.'),
+    dayParam('date_from', 'Date from', 'First day (Asia/Tashkent); only the date part is used. Default: 29 days before Date to. Max range 366 days.'),
+    dayParam('date_to', 'Date to', 'Last day (Asia/Tashkent); only the date part is used. Default: today.'),
     offerSelect({ mode: undefined, help: 'Only this offer.' }),
     linkSelect({ mode: undefined, help: 'Only this link.' }),
   ],
   interface: [
     text('group_by', 'Grouped by'), text('date_from', 'Date from'), text('date_to', 'Date to'), text('timezone', 'Time zone'),
-    text('currency', 'Currency'), date('clicks_since', 'Click tracking since'),
+    text('currency', 'Currency'), text('clicks_since', 'Click tracking since (YYYY-MM-DD)'),
     coll('totals', 'Totals', STATS_NUMBERS),
     arr('rows', 'Rows', { type: 'collection', label: 'Row', spec: [...STATS_ROW, ...STATS_NUMBERS] }),
   ],
   samples: {
-    group_by: 'day', date_from: '2026-10-22', date_to: '2026-11-20', timezone: 'Asia/Tashkent', currency: 'UZS', clicks_since: '2026-11-18T00:00:00.000Z',
+    group_by: 'day', date_from: '2026-10-22', date_to: '2026-11-20', timezone: 'Asia/Tashkent', currency: 'UZS', clicks_since: '2026-11-18',
     totals: { orders: 40, approved: 22, delivered: 15, rejected: 12, pending: 6, approval_rate_percent: 55, delivery_rate_percent: 38, earned: 750000, potential_earnings: 350000, clicks: 1200, unique_clicks: 950 },
     rows: [{ date: '2026-11-20', orders: 2, approved: 1, delivered: 0, rejected: 0, pending: 1, approval_rate_percent: 50, delivery_rate_percent: 0, earned: 0, potential_earnings: 100000, clicks: 60, unique_clicks: 48 }],
   },
@@ -763,24 +840,13 @@ module('getStatistics', {
 module('getCohortReport', {
   type: 'action',
   crud: 'read',
-  label: 'Get a Cohort Report',
+  label: 'Get a cohort report',
   description: 'Gets weekly order cohorts and the share delivered within 3, 7, 14 and 30 days.',
   api: {
     url: '/stats/cohorts',
     method: 'GET',
     qs: { weeks: '{{parameters.weeks}}', offer_id: '{{parameters.offer_id}}', link_id: '{{parameters.link_id}}', source: '{{parameters.source}}' },
-    response: {
-      output: {
-        weeks: '{{body.meta.weeks}}',
-        date_from: '{{body.meta.date_from}}',
-        date_to: '{{body.meta.date_to}}',
-        timezone: '{{body.meta.timezone}}',
-        week_starts_on: '{{body.meta.week_starts_on}}',
-        totals: '{{body.meta.totals}}',
-        average: '{{body.meta.average}}',
-        cohorts: '{{body.data}}',
-      },
-    },
+    response: { output: { '{{...}}': '{{body.meta}}', cohorts: '{{body.data}}' } },
   },
   expect: [
     uint('weeks', 'Weeks', { default: 12, validate: { min: 1, max: 52 } }),
@@ -821,31 +887,30 @@ const STEP_SPEC = [
 module('getAttributionReport', {
   type: 'action',
   crud: 'read',
-  label: 'Get an Attribution Report',
+  label: 'Get an attribution report',
   description: 'Gets the multi-touch attribution report: which of your links were first, last or assisting touches before orders (report only; payouts are not affected).',
   api: {
     url: '/stats/attribution',
     method: 'GET',
-    qs: { date_from: '{{parameters.date_from}}', date_to: '{{parameters.date_to}}' },
+    qs: { date_from: fmtParam('date_from', 'YYYY-MM-DD'), date_to: fmtParam('date_to', 'YYYY-MM-DD') },
+    // body.data as returned (tracking_since is a date only, so it stays text); paths[].ordered_at and
+    // paths[].steps[].at are parsed by parseDateFields. The three meta fields are added by name.
     response: {
       output: {
+        '{{...}}': "{{omit(body.data, 'paths')}}",
+        paths: parsedNested('body.data.paths'),
         date_from: '{{body.meta.date_from}}',
         date_to: '{{body.meta.date_to}}',
         timezone: '{{body.meta.timezone}}',
-        tracking_since: '{{body.data.tracking_since}}',
-        lookback_days: '{{body.data.lookback_days}}',
-        summary: '{{body.data.summary}}',
-        links: '{{body.data.links}}',
-        paths: '{{body.data.paths}}',
       },
     },
   },
   expect: [
-    dayParam('date_from', 'Date from', 'First day (Asia/Tashkent), `YYYY-MM-DD`. Default: 29 days before Date to.'),
-    dayParam('date_to', 'Date to', 'Last day (Asia/Tashkent), `YYYY-MM-DD`. Default: today.'),
+    dayParam('date_from', 'Date from', 'First day (Asia/Tashkent); only the date part is used. Default: 29 days before Date to.'),
+    dayParam('date_to', 'Date to', 'Last day (Asia/Tashkent); only the date part is used. Default: today.'),
   ],
   interface: [
-    text('date_from', 'Date from'), text('date_to', 'Date to'), text('timezone', 'Time zone'), date('tracking_since', 'Tracking since'), uint('lookback_days', 'Lookback (days)'),
+    text('date_from', 'Date from'), text('date_to', 'Date to'), text('timezone', 'Time zone'), text('tracking_since', 'Tracking since (YYYY-MM-DD)'), uint('lookback_days', 'Lookback (days)'),
     coll('summary', 'Summary', [
       uint('orders', 'Orders'), uint('converted_by_you', 'Converted by you'), uint('multi_touch', 'Multi-touch orders'),
       uint('with_other_partners', 'With other partners'), uint('assisted_for_other_partners', 'Assisted for other partners'),
@@ -866,7 +931,7 @@ module('getAttributionReport', {
     }),
   ],
   samples: {
-    date_from: '2026-10-22', date_to: '2026-11-20', timezone: 'Asia/Tashkent', tracking_since: '2026-11-18T00:00:00.000Z', lookback_days: 30,
+    date_from: '2026-10-22', date_to: '2026-11-20', timezone: 'Asia/Tashkent', tracking_since: '2026-11-18', lookback_days: 30,
     summary: { orders: 40, converted_by_you: 38, multi_touch: 5, with_other_partners: 2, assisted_for_other_partners: 1 },
     links: [{ link_id: 9001, link_name: 'Instagram reels', first_touch_orders: 10, last_touch_orders: 12, assist_orders: 2, single_touch_orders: 20, converted_orders: 30 }],
     paths: [],
@@ -876,9 +941,9 @@ module('getAttributionReport', {
 module('getAccount', {
   type: 'action',
   crud: 'read',
-  label: 'Get My Account',
+  label: 'Get my account',
   description: 'Gets your partner account: balance, frozen balance, minimum withdrawal and the API key mode (live or test).',
-  api: { url: '/me', method: 'GET', response: { output: '{{body.data}}' } },
+  api: { url: '/me', method: 'GET', response: { output: withDates('body.data', ['created_at'], ['api_key']) } },
   interface: [
     uint('id', 'Account ID'), text('name', 'Name'), text('status', 'Status'), num('balance', 'Balance (UZS)'), num('balance_frozen', 'Frozen balance (UZS)'),
     num('min_withdrawal', 'Minimum withdrawal (UZS)'), text('currency', 'Currency'), date('created_at', 'Created at'),
@@ -892,10 +957,11 @@ module('getAccount', {
 
 module('makeApiCall', {
   type: 'universal',
-  label: 'Make an API Call',
-  description: 'Performs an arbitrary authorized call to the Birinchishop Partner API.',
+  label: 'Make an API call',
+  description: 'Performs an arbitrary authorized API call.',
   api: {
-    url: "/{{replace(parameters.url, '/^\\//', emptystring)}}",
+    // Ends before the API version, so any version can be called; Base headers, errors and sanitization still apply.
+    url: `${API_ROOT}/{{parameters.url}}`,
     method: '{{parameters.method}}',
     headers: { '{{...}}': "{{toCollection(parameters.headers, 'key', 'value')}}" },
     qs: { '{{...}}': "{{toCollection(parameters.qs, 'key', 'value')}}" },
@@ -906,14 +972,14 @@ module('makeApiCall', {
   expect: [
     text('url', 'URL', {
       required: true,
-      help: 'Path relative to `https://birinchishop.uz/api/v1/`, e.g. `/offers`. See https://birinchishop.uz/api/v1/docs. Note: `POST /orders` with a live key creates a REAL order.',
+      help: 'Enter a path relative to `https://birinchishop.uz/api`. For example: `/v1/offers`. See https://birinchishop.uz/api/v1/docs. Note: `POST /v1/orders` with a live key creates a REAL order.',
     }),
     f('method', 'select', 'Method', { required: true, default: 'GET', options: opts({ GET: 'GET', POST: 'POST', PATCH: 'PATCH', DELETE: 'DELETE' }) }),
     arr('headers', 'Headers', [text('key', 'Key'), text('value', 'Value')], {
       default: [{ key: 'Content-Type', value: 'application/json' }],
-      help: 'Authorization is added automatically.',
+      help: "You don't have to add authorization headers; we already did that for you.",
     }),
-    arr('qs', 'Query String', [text('key', 'Key'), text('value', 'Value')]),
+    arr('qs', 'Query string', [text('key', 'Key'), text('value', 'Value')]),
     f('body', 'any', 'Body', { help: 'JSON text for POST/PATCH.' }),
   ],
   interface: [f('body', 'any', 'Body'), coll('headers', 'Headers', []), num('statusCode', 'Status code')],
@@ -929,6 +995,6 @@ rmSync(ROOT, { recursive: true, force: true });
 for (const [path, content] of files) {
   const full = join(ROOT, path);
   mkdirSync(dirname(full), { recursive: true });
-  writeFileSync(full, prune(content));
+  writeFileSync(full, path.endsWith('.js') ? content : prune(content));
 }
 console.log(`Wrote ${files.size} files to app/`);

@@ -12,7 +12,7 @@
       "value": "{{body.data.name}} ({{body.data.api_key.mode}} key)"
     },
     "error": {
-      "message": "[{{statusCode}}] {{body.error.message}} (code: {{body.error.code}})"
+      "message": "[{{statusCode}}] {{ifempty(body.error.message, 'Unexpected response')}} (code: {{ifempty(body.error.code, 'none')}})"
     }
   },
   "log": {

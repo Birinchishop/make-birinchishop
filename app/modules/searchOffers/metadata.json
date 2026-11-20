@@ -1,5 +1,5 @@
 {
-  "label": "Search Offers",
+  "label": "Search offers",
   "description": "Searches offers by name, payout, sale rate and stock.",
   "typeId": 9,
   "crud": "read",

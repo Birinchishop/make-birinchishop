@@ -1,5 +1,5 @@
 {
-  "label": "Get an Offer",
+  "label": "Get an offer",
   "description": "Gets an offer with its description, images and variants.",
   "typeId": 4,
   "crud": "read",

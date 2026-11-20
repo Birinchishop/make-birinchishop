@@ -22,21 +22,17 @@
   },
   {
     "name": "date_from",
-    "type": "text",
+    "type": "date",
     "label": "Date from",
-    "validate": {
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-    },
-    "help": "First day (Asia/Tashkent), `YYYY-MM-DD`. Default: 29 days before Date to. Max range 366 days."
+    "help": "First day (Asia/Tashkent); only the date part is used. Default: 29 days before Date to. Max range 366 days.",
+    "time": false
   },
   {
     "name": "date_to",
-    "type": "text",
+    "type": "date",
     "label": "Date to",
-    "validate": {
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-    },
-    "help": "Last day (Asia/Tashkent), `YYYY-MM-DD`. Default: today."
+    "help": "Last day (Asia/Tashkent); only the date part is used. Default: today.",
+    "time": false
   },
   {
     "name": "offer_id",

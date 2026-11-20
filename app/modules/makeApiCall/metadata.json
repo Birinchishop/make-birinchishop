@@ -1,6 +1,6 @@
 {
-  "label": "Make an API Call",
-  "description": "Performs an arbitrary authorized call to the Birinchishop Partner API.",
+  "label": "Make an API call",
+  "description": "Performs an arbitrary authorized API call.",
   "typeId": 12,
   "crud": null,
   "accountName": "birinchishop",

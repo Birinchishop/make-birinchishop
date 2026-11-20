@@ -9,21 +9,21 @@
     "error": {
       "400": {
         "type": "DataError",
-        "message": "[400] {{body.error.message}} (code: {{body.error.code}}, request ID: {{body.request_id}})"
+        "message": "[400] {{ifempty(body.error.message, 'Unexpected response')}} (code: {{ifempty(body.error.code, 'none')}}, request ID: {{ifempty(body.request_id, 'none')}})"
       },
       "401": {
         "type": "InvalidAccessTokenError",
-        "message": "[401] {{body.error.message}} (code: {{body.error.code}}). Check or recreate the API key in Dashboard → API."
+        "message": "[401] {{ifempty(body.error.message, 'Unexpected response')}} (code: {{ifempty(body.error.code, 'none')}}). Check or recreate the API key in Dashboard → API."
       },
       "403": {
-        "type": "InvalidConfigurationError",
-        "message": "[403] {{body.error.message}} (code: {{body.error.code}}, request ID: {{body.request_id}}). For insufficient_scope, grant the scope to the key in Dashboard → API."
+        "type": "{{if(body.error.code === 'insufficient_scope' || body.error.code === 'not_available_in_test_mode' || body.error.code === 'ip_not_allowed' || body.error.code === 'account_blocked' || body.error.code === 'test_mode_only', 'InvalidConfigurationError', 'DataError')}}",
+        "message": "[403] {{ifempty(body.error.message, 'Unexpected response')}} (code: {{ifempty(body.error.code, 'none')}}, request ID: {{ifempty(body.request_id, 'none')}}). For insufficient_scope, grant the scope to the key in Dashboard → API."
       },
       "409": {
         "type": "DuplicateDataError",
-        "message": "[409] {{body.error.message}} (code: {{body.error.code}}, request ID: {{body.request_id}}). Do not retry this request."
+        "message": "[409] {{ifempty(body.error.message, 'Unexpected response')}} (code: {{ifempty(body.error.code, 'none')}}, request ID: {{ifempty(body.request_id, 'none')}}). Do not retry this request."
       },
-      "message": "[{{statusCode}}] {{body.error.message}} (code: {{body.error.code}}, request ID: {{body.request_id}})"
+      "message": "[{{statusCode}}] {{ifempty(body.error.message, 'Unexpected response')}} (code: {{ifempty(body.error.code, 'none')}}, request ID: {{ifempty(body.request_id, 'none')}})"
     }
   },
   "log": {

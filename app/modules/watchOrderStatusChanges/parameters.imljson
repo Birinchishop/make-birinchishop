@@ -3,6 +3,6 @@
     "name": "about",
     "type": "banner",
     "title": "Instant trigger",
-    "text": "Saving the scenario registers a signed webhook on your account (API key scope `webhooks:manage`, at most 10 per account); turning it off or deleting it removes the webhook. Each event is re-read from the API with your key before it reaches the scenario."
+    "text": "Creating the webhook registers it on your account (API key scope `webhooks:manage`, at most 10 per account). To remove the registration, delete the webhook in Make's Webhooks section. Each event is re-read from the API with your key before it reaches the scenario."
   }
 ]

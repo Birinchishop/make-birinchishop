@@ -1,14 +1,4 @@
 {
-  "url": "https://birinchishop.uz/api/v1/webhooks/{{webhook.externalHookId}}",
-  "method": "DELETE",
-  "headers": {
-    "Authorization": "Bearer {{connection.apiKey}}",
-    "Accept": "application/json",
-    "User-Agent": "birinchishop-make/1.0"
-  },
-  "log": {
-    "sanitize": [
-      "request.headers.authorization"
-    ]
-  }
+  "url": "/webhooks/{{webhook.externalHookId}}",
+  "method": "DELETE"
 }
