@@ -91,8 +91,9 @@ tools/editor-schemas/           Make's editor JSON schemas (MIT, from integromat
 
 Instant triggers use **dedicated attached webhooks**: when the scenario is activated Make runs *attach*
 (`POST /webhooks` with Make's hook URL, `kind: json`, one event type); the API returns the webhook ID and a one-time
-signing secret, both saved in the webhook data (the secret is masked in logs). Deactivating or deleting the scenario
-runs *detach* (`DELETE /webhooks/{id}`). The account allows **10 webhooks**; each scenario with an instant trigger uses
+signing secret, both saved in the webhook data (the secret is masked in logs). Make runs *detach*
+(`DELETE /webhooks/{id}`) when the **webhook itself is deleted** in Make (Webhooks page, or when the trigger's hook is
+removed); turning a scenario off does not detach it, the webhook just stops being processed. The account allows **10 webhooks**; each scenario with an instant trigger uses
 one.
 
 The API signs each request with `X-Birinchishop-Signature: t=<unix>,v1=HMAC-SHA256(secret, "<t>.<raw body>")`.
@@ -188,10 +189,12 @@ Use a **test key** (`bsk_test_...`) connection for everything that writes:
 
 1. Connection: valid key → label "Name (test key)"; wrong key → error shown.
 2. Scenario A: *Watch Order Status Changes* (activate the scenario → a webhook appears in Dashboard → API → Webhooks).
-3. Scenario B: *Search Links* → *Create an Order* (test key, a real-looking number in the right format, idempotency
+3. Scenario B (the account needs at least one real tracking link; a test key cannot create one, and Search Links
+   lists only real links): *Search Links* → *Create an Order* (test key, a real-looking number in the right format, idempotency
    key) → *Set a Test Order Status* (`delivered`). Scenario A must run with `test: true` and the current order.
    Run *Create an Order* again with the same idempotency key → same order returned.
-4. Deactivate scenario A → the webhook disappears from the panel. Do the same with *Watch New Orders*.
+4. Delete scenario A's webhook in Make (Webhooks page) → the webhook disappears from the panel (turning the scenario
+   off is not enough: Make detaches only when the hook is deleted). Do the same with *Watch New Orders*.
 5. *Watch Order Events*, *Search Orders* / *Search Offers* / *Search Links* with a Limit above 100 so the logs show
    page 2 (pagination), *Get an Order*, *Get an Offer*, the three reports, *Get My Account*, *Make an API Call*
    (`GET /offers`).
