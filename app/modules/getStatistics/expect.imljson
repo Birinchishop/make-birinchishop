@@ -1,0 +1,55 @@
+[
+  {
+    "name": "group_by",
+    "type": "select",
+    "label": "Group rows by",
+    "required": true,
+    "default": "day",
+    "options": [
+      {
+        "label": "Day",
+        "value": "day"
+      },
+      {
+        "label": "Offer",
+        "value": "offer"
+      },
+      {
+        "label": "Link",
+        "value": "link"
+      }
+    ]
+  },
+  {
+    "name": "date_from",
+    "type": "text",
+    "label": "Date from",
+    "validate": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "help": "First day (Asia/Tashkent), `YYYY-MM-DD`. Default: 29 days before Date to. Max range 366 days."
+  },
+  {
+    "name": "date_to",
+    "type": "text",
+    "label": "Date to",
+    "validate": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "help": "Last day (Asia/Tashkent), `YYYY-MM-DD`. Default: today."
+  },
+  {
+    "name": "offer_id",
+    "type": "select",
+    "label": "Offer",
+    "options": "rpc://listOffers",
+    "help": "Only this offer."
+  },
+  {
+    "name": "link_id",
+    "type": "select",
+    "label": "Link",
+    "options": "rpc://listLinks",
+    "help": "Only this link."
+  }
+]

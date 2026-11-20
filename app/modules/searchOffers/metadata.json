@@ -1,0 +1,9 @@
+{
+  "label": "Search Offers",
+  "description": "Searches offers by name, payout, sale rate and stock.",
+  "typeId": 9,
+  "crud": "read",
+  "accountName": "birinchishop",
+  "hookName": null,
+  "public": true
+}

@@ -1,0 +1,18 @@
+{
+  "url": "/orders/{{payload.order_id}}",
+  "method": "GET",
+  "response": {
+    "output": {
+      "event_id": "{{payload.event_id}}",
+      "type": "{{payload.type}}",
+      "event_created_at": "{{payload.created_at}}",
+      "order_id": "{{payload.order_id}}",
+      "event_status": "{{payload.status}}",
+      "previous_status": "{{payload.previous_status}}",
+      "status": "{{body.data.status}}",
+      "conversion_status": "{{body.data.conversion_status}}",
+      "test": "{{payload.test}}",
+      "order": "{{body.data}}"
+    }
+  }
+}

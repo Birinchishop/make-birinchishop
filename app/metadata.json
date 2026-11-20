@@ -1,0 +1,13 @@
+{
+  "name": "birinchishop",
+  "label": "Birinchishop",
+  "description": "Birinchishop is a cash-on-delivery CPA affiliate network in Uzbekistan: partners promote products and earn a fixed payout for every delivered order.",
+  "theme": "#D4AF37",
+  "language": "en",
+  "countries": [
+    "uz"
+  ],
+  "website": "https://birinchishop.uz",
+  "docs": "https://birinchishop.uz/api/v1/docs",
+  "private": true
+}

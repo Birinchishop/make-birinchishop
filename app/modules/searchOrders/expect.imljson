@@ -1,0 +1,129 @@
+[
+  {
+    "name": "status",
+    "type": "select",
+    "label": "Status",
+    "options": [
+      {
+        "label": "New (waiting for the call center)",
+        "value": "new"
+      },
+      {
+        "label": "Processing",
+        "value": "processing"
+      },
+      {
+        "label": "Callback (customer asked to be called later)",
+        "value": "callback"
+      },
+      {
+        "label": "Confirmed by phone",
+        "value": "confirmed"
+      },
+      {
+        "label": "Packed",
+        "value": "packed"
+      },
+      {
+        "label": "Shipping",
+        "value": "shipping"
+      },
+      {
+        "label": "Delivered (payout earned)",
+        "value": "delivered"
+      },
+      {
+        "label": "Returned (refused at delivery)",
+        "value": "returned"
+      },
+      {
+        "label": "Cancelled (no payout)",
+        "value": "cancelled"
+      }
+    ]
+  },
+  {
+    "name": "conversion_status",
+    "type": "select",
+    "label": "Conversion status",
+    "options": [
+      {
+        "label": "Lead (new, processing, callback)",
+        "value": "lead"
+      },
+      {
+        "label": "Approved (confirmed, packed, shipping)",
+        "value": "approved"
+      },
+      {
+        "label": "Sale (delivered)",
+        "value": "sale"
+      },
+      {
+        "label": "Rejected (returned, cancelled)",
+        "value": "rejected"
+      }
+    ],
+    "help": "Ignored when Status is set."
+  },
+  {
+    "name": "date_from",
+    "type": "text",
+    "label": "Created from",
+    "validate": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "help": "First day (Asia/Tashkent), `YYYY-MM-DD`."
+  },
+  {
+    "name": "date_to",
+    "type": "text",
+    "label": "Created to",
+    "validate": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "help": "Last day (Asia/Tashkent), `YYYY-MM-DD`."
+  },
+  {
+    "name": "updated_since",
+    "type": "date",
+    "label": "Updated since",
+    "help": "Only orders updated after this time; results are then sorted by update time (oldest first)."
+  },
+  {
+    "name": "offer_id",
+    "type": "select",
+    "label": "Offer",
+    "options": "rpc://listOffers",
+    "help": "In-stock offers are listed; you can also map an offer ID."
+  },
+  {
+    "name": "link_id",
+    "type": "select",
+    "label": "Link",
+    "options": "rpc://listLinks",
+    "help": "One of your tracking links; you can also map a link ID."
+  },
+  {
+    "name": "external_id",
+    "type": "text",
+    "label": "External ID"
+  },
+  {
+    "name": "click_id",
+    "type": "text",
+    "label": "Click ID"
+  },
+  {
+    "name": "limit",
+    "type": "uinteger",
+    "label": "Limit",
+    "required": true,
+    "default": 100,
+    "validate": {
+      "min": 1,
+      "max": 10000
+    },
+    "help": "Maximum number of bundles this module returns in one execution."
+  }
+]

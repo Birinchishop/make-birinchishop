@@ -1,0 +1,19 @@
+[
+  {
+    "name": "offer_id",
+    "type": "select",
+    "label": "Offer",
+    "options": "rpc://listOffers",
+    "help": "In-stock offers are listed; you can also map an offer ID.",
+    "required": true
+  },
+  {
+    "name": "name",
+    "type": "text",
+    "label": "Link name",
+    "validate": {
+      "max": 100
+    },
+    "help": "Your label, e.g. \"Instagram reels\"."
+  }
+]

@@ -1,0 +1,34 @@
+{
+  "baseUrl": "https://birinchishop.uz/api/v1",
+  "headers": {
+    "Authorization": "Bearer {{connection.apiKey}}",
+    "Accept": "application/json",
+    "User-Agent": "birinchishop-make/1.0"
+  },
+  "response": {
+    "error": {
+      "400": {
+        "type": "DataError",
+        "message": "[400] {{body.error.message}} (code: {{body.error.code}}, request ID: {{body.request_id}})"
+      },
+      "401": {
+        "type": "InvalidAccessTokenError",
+        "message": "[401] {{body.error.message}} (code: {{body.error.code}}). Check or recreate the API key in Dashboard → API."
+      },
+      "403": {
+        "type": "InvalidConfigurationError",
+        "message": "[403] {{body.error.message}} (code: {{body.error.code}}, request ID: {{body.request_id}}). For insufficient_scope, grant the scope to the key in Dashboard → API."
+      },
+      "409": {
+        "type": "DuplicateDataError",
+        "message": "[409] {{body.error.message}} (code: {{body.error.code}}, request ID: {{body.request_id}}). Do not retry this request."
+      },
+      "message": "[{{statusCode}}] {{body.error.message}} (code: {{body.error.code}}, request ID: {{body.request_id}})"
+    }
+  },
+  "log": {
+    "sanitize": [
+      "request.headers.authorization"
+    ]
+  }
+}

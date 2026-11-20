@@ -1,0 +1,9 @@
+{
+  "label": "Watch New Orders",
+  "description": "Triggers when a new order arrives on your account.",
+  "typeId": 10,
+  "crud": null,
+  "accountName": "birinchishop",
+  "hookName": "orderCreated",
+  "public": true
+}

@@ -1,0 +1,31 @@
+[
+  {
+    "name": "offer_id",
+    "type": "select",
+    "label": "Offer",
+    "options": "rpc://listOffers",
+    "mode": "edit",
+    "help": "In-stock offers are listed; you can also map an offer ID.",
+    "required": true
+  },
+  {
+    "name": "lang",
+    "type": "select",
+    "label": "Language of name and description",
+    "options": [
+      {
+        "label": "Uzbek (original)",
+        "value": "uz"
+      },
+      {
+        "label": "Russian",
+        "value": "ru"
+      },
+      {
+        "label": "English",
+        "value": "en"
+      }
+    ],
+    "default": "uz"
+  }
+]

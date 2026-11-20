@@ -1,0 +1,9 @@
+{
+  "label": "Create a Link",
+  "description": "Creates a tracking link for an offer. Test keys create nothing.",
+  "typeId": 4,
+  "crud": "create",
+  "accountName": "birinchishop",
+  "hookName": null,
+  "public": true
+}

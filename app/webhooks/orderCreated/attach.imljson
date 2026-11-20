@@ -1,0 +1,35 @@
+{
+  "url": "https://birinchishop.uz/api/v1/webhooks",
+  "method": "POST",
+  "headers": {
+    "Authorization": "Bearer {{connection.apiKey}}",
+    "Accept": "application/json",
+    "User-Agent": "birinchishop-make/1.0"
+  },
+  "type": "json",
+  "body": {
+    "url": "{{webhook.url}}",
+    "kind": "json",
+    "events": [
+      "order.created"
+    ],
+    "description": "Make: Birinchishop: order created"
+  },
+  "response": {
+    "data": {
+      "externalHookId": "{{body.data.id}}",
+      "secret": "{{body.data.secret}}"
+    },
+    "error": {
+      "message": "[{{statusCode}}] {{body.error.message}} (code: {{body.error.code}}). The account can have at most 10 webhooks; remove unused ones in Dashboard → API → Webhooks."
+    }
+  },
+  "log": {
+    "sanitize": [
+      "request.headers.authorization",
+      "request.body.url",
+      "response.body.data.secret",
+      "response.body.data.url"
+    ]
+  }
+}

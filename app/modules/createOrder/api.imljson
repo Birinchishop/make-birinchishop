@@ -1,0 +1,26 @@
+{
+  "url": "/orders",
+  "method": "POST",
+  "type": "json",
+  "headers": {
+    "Idempotency-Key": "{{parameters.idempotency_key}}"
+  },
+  "body": {
+    "link_id": "{{parameters.link_id}}",
+    "phone": "{{parameters.phone}}",
+    "name": "{{parameters.name}}",
+    "region": "{{parameters.region}}",
+    "variant_id": "{{parameters.variant_id}}",
+    "variant_type_id": "{{parameters.variant_type_id}}",
+    "external_id": "{{parameters.external_id}}",
+    "click_id": "{{parameters.click_id}}",
+    "sub1": "{{parameters.sub1}}",
+    "sub2": "{{parameters.sub2}}",
+    "sub3": "{{parameters.sub3}}",
+    "sub4": "{{parameters.sub4}}",
+    "sub5": "{{parameters.sub5}}"
+  },
+  "response": {
+    "output": "{{body.data}}"
+  }
+}

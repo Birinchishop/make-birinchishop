@@ -1,0 +1,9 @@
+{
+  "label": "Get My Account",
+  "description": "Gets your partner account: balance, frozen balance, minimum withdrawal and the API key mode (live or test).",
+  "typeId": 4,
+  "crud": "read",
+  "accountName": "birinchishop",
+  "hookName": null,
+  "public": true
+}

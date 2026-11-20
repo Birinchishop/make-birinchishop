@@ -1,0 +1,11 @@
+{
+  "url": "/sandbox/orders/{{parameters.order_id}}/status",
+  "method": "POST",
+  "type": "json",
+  "body": {
+    "status": "{{parameters.status}}"
+  },
+  "response": {
+    "output": "{{body.data}}"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "url": "/events",
+  "method": "GET",
+  "qs": {
+    "after": "{{data.lastId}}",
+    "limit": 200,
+    "include_order": "true",
+    "type": "{{parameters.type}}"
+  },
+  "response": {
+    "iterate": "{{body.data}}",
+    "limit": "{{parameters.limit}}",
+    "trigger": {
+      "id": "{{item.id}}",
+      "type": "id",
+      "order": "asc"
+    },
+    "output": "{{item}}"
+  },
+  "pagination": {
+    "qs": {
+      "after": "{{body.meta.next_cursor}}"
+    },
+    "condition": "{{body.meta.has_more}}"
+  }
+}

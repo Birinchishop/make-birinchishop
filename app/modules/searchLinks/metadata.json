@@ -1,0 +1,9 @@
+{
+  "label": "Search Links",
+  "description": "Lists your tracking links, optionally for one offer (newest first).",
+  "typeId": 9,
+  "crud": "read",
+  "accountName": "birinchishop",
+  "hookName": null,
+  "public": true
+}

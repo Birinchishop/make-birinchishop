@@ -1,0 +1,9 @@
+{
+  "label": "Set a Test Order Status",
+  "description": "Moves a test order (bsk_test_ key) to another status and sends a signed test event to your webhooks. Works only with test keys.",
+  "typeId": 4,
+  "crud": "update",
+  "accountName": "birinchishop",
+  "hookName": null,
+  "public": true
+}

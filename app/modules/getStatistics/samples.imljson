@@ -1,0 +1,37 @@
+{
+  "group_by": "day",
+  "date_from": "2026-10-22",
+  "date_to": "2026-11-20",
+  "timezone": "Asia/Tashkent",
+  "currency": "UZS",
+  "clicks_since": "2026-11-18T00:00:00.000Z",
+  "totals": {
+    "orders": 40,
+    "approved": 22,
+    "delivered": 15,
+    "rejected": 12,
+    "pending": 6,
+    "approval_rate_percent": 55,
+    "delivery_rate_percent": 38,
+    "earned": 750000,
+    "potential_earnings": 350000,
+    "clicks": 1200,
+    "unique_clicks": 950
+  },
+  "rows": [
+    {
+      "date": "2026-11-20",
+      "orders": 2,
+      "approved": 1,
+      "delivered": 0,
+      "rejected": 0,
+      "pending": 1,
+      "approval_rate_percent": 50,
+      "delivery_rate_percent": 0,
+      "earned": 0,
+      "potential_earnings": 100000,
+      "clicks": 60,
+      "unique_clicks": 48
+    }
+  ]
+}

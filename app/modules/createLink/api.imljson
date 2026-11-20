@@ -1,0 +1,12 @@
+{
+  "url": "/links",
+  "method": "POST",
+  "type": "json",
+  "body": {
+    "offer_id": "{{parameters.offer_id}}",
+    "name": "{{parameters.name}}"
+  },
+  "response": {
+    "output": "{{body.data}}"
+  }
+}

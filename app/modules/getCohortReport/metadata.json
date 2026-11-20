@@ -1,0 +1,9 @@
+{
+  "label": "Get a Cohort Report",
+  "description": "Gets weekly order cohorts and the share delivered within 3, 7, 14 and 30 days.",
+  "typeId": 4,
+  "crud": "read",
+  "accountName": "birinchishop",
+  "hookName": null,
+  "public": true
+}

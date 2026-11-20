@@ -1,0 +1,53 @@
+[
+  {
+    "name": "weeks",
+    "type": "uinteger",
+    "label": "Weeks",
+    "default": 12,
+    "validate": {
+      "min": 1,
+      "max": 52
+    }
+  },
+  {
+    "name": "offer_id",
+    "type": "select",
+    "label": "Offer",
+    "options": "rpc://listOffers",
+    "help": "Only this offer."
+  },
+  {
+    "name": "link_id",
+    "type": "select",
+    "label": "Link",
+    "options": "rpc://listLinks",
+    "help": "Only this link."
+  },
+  {
+    "name": "source",
+    "type": "select",
+    "label": "Order source",
+    "options": [
+      {
+        "label": "Tracking link",
+        "value": "link"
+      },
+      {
+        "label": "Landing page",
+        "value": "landing"
+      },
+      {
+        "label": "Meta ads",
+        "value": "meta_ads"
+      },
+      {
+        "label": "Partner panel",
+        "value": "panel"
+      },
+      {
+        "label": "API",
+        "value": "api"
+      }
+    ]
+  }
+]

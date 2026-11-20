@@ -1,0 +1,7 @@
+{
+  "url": "/orders/{{parameters.order_id}}",
+  "method": "GET",
+  "response": {
+    "output": "{{body.data}}"
+  }
+}

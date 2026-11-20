@@ -1,0 +1,185 @@
+[
+  {
+    "name": "group_by",
+    "type": "text",
+    "label": "Grouped by"
+  },
+  {
+    "name": "date_from",
+    "type": "text",
+    "label": "Date from"
+  },
+  {
+    "name": "date_to",
+    "type": "text",
+    "label": "Date to"
+  },
+  {
+    "name": "timezone",
+    "type": "text",
+    "label": "Time zone"
+  },
+  {
+    "name": "currency",
+    "type": "text",
+    "label": "Currency"
+  },
+  {
+    "name": "clicks_since",
+    "type": "date",
+    "label": "Click tracking since"
+  },
+  {
+    "name": "totals",
+    "type": "collection",
+    "label": "Totals",
+    "spec": [
+      {
+        "name": "orders",
+        "type": "uinteger",
+        "label": "Orders"
+      },
+      {
+        "name": "approved",
+        "type": "uinteger",
+        "label": "Approved"
+      },
+      {
+        "name": "delivered",
+        "type": "uinteger",
+        "label": "Delivered"
+      },
+      {
+        "name": "rejected",
+        "type": "uinteger",
+        "label": "Rejected"
+      },
+      {
+        "name": "pending",
+        "type": "uinteger",
+        "label": "Pending"
+      },
+      {
+        "name": "approval_rate_percent",
+        "type": "number",
+        "label": "Approval rate (%)"
+      },
+      {
+        "name": "delivery_rate_percent",
+        "type": "number",
+        "label": "Delivery rate (%)"
+      },
+      {
+        "name": "earned",
+        "type": "number",
+        "label": "Earned (UZS)"
+      },
+      {
+        "name": "potential_earnings",
+        "type": "number",
+        "label": "Potential earnings (UZS)"
+      },
+      {
+        "name": "clicks",
+        "type": "uinteger",
+        "label": "Clicks (bots excluded)"
+      },
+      {
+        "name": "unique_clicks",
+        "type": "uinteger",
+        "label": "Unique clicks"
+      }
+    ]
+  },
+  {
+    "name": "rows",
+    "type": "array",
+    "label": "Rows",
+    "spec": {
+      "type": "collection",
+      "label": "Row",
+      "spec": [
+        {
+          "name": "date",
+          "type": "text",
+          "label": "Date"
+        },
+        {
+          "name": "offer_id",
+          "type": "uinteger",
+          "label": "Offer ID"
+        },
+        {
+          "name": "offer_name",
+          "type": "text",
+          "label": "Offer name"
+        },
+        {
+          "name": "link_id",
+          "type": "uinteger",
+          "label": "Link ID"
+        },
+        {
+          "name": "link_name",
+          "type": "text",
+          "label": "Link name"
+        },
+        {
+          "name": "orders",
+          "type": "uinteger",
+          "label": "Orders"
+        },
+        {
+          "name": "approved",
+          "type": "uinteger",
+          "label": "Approved"
+        },
+        {
+          "name": "delivered",
+          "type": "uinteger",
+          "label": "Delivered"
+        },
+        {
+          "name": "rejected",
+          "type": "uinteger",
+          "label": "Rejected"
+        },
+        {
+          "name": "pending",
+          "type": "uinteger",
+          "label": "Pending"
+        },
+        {
+          "name": "approval_rate_percent",
+          "type": "number",
+          "label": "Approval rate (%)"
+        },
+        {
+          "name": "delivery_rate_percent",
+          "type": "number",
+          "label": "Delivery rate (%)"
+        },
+        {
+          "name": "earned",
+          "type": "number",
+          "label": "Earned (UZS)"
+        },
+        {
+          "name": "potential_earnings",
+          "type": "number",
+          "label": "Potential earnings (UZS)"
+        },
+        {
+          "name": "clicks",
+          "type": "uinteger",
+          "label": "Clicks (bots excluded)"
+        },
+        {
+          "name": "unique_clicks",
+          "type": "uinteger",
+          "label": "Unique clicks"
+        }
+      ]
+    }
+  }
+]

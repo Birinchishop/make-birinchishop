@@ -1,0 +1,9 @@
+{
+  "label": "Watch Order Events",
+  "description": "Triggers when an order is created or changes status (polling the event feed; no webhook needed).",
+  "typeId": 1,
+  "crud": "read",
+  "accountName": "birinchishop",
+  "hookName": null,
+  "public": true
+}

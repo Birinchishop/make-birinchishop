@@ -1,0 +1,23 @@
+{
+  "url": "https://birinchishop.uz/api/v1/me",
+  "method": "GET",
+  "headers": {
+    "Authorization": "Bearer {{parameters.apiKey}}",
+    "Accept": "application/json",
+    "User-Agent": "birinchishop-make/1.0"
+  },
+  "response": {
+    "metadata": {
+      "type": "text",
+      "value": "{{body.data.name}} ({{body.data.api_key.mode}} key)"
+    },
+    "error": {
+      "message": "[{{statusCode}}] {{body.error.message}} (code: {{body.error.code}})"
+    }
+  },
+  "log": {
+    "sanitize": [
+      "request.headers.authorization"
+    ]
+  }
+}

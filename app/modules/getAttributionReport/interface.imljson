@@ -1,0 +1,212 @@
+[
+  {
+    "name": "date_from",
+    "type": "text",
+    "label": "Date from"
+  },
+  {
+    "name": "date_to",
+    "type": "text",
+    "label": "Date to"
+  },
+  {
+    "name": "timezone",
+    "type": "text",
+    "label": "Time zone"
+  },
+  {
+    "name": "tracking_since",
+    "type": "date",
+    "label": "Tracking since"
+  },
+  {
+    "name": "lookback_days",
+    "type": "uinteger",
+    "label": "Lookback (days)"
+  },
+  {
+    "name": "summary",
+    "type": "collection",
+    "label": "Summary",
+    "spec": [
+      {
+        "name": "orders",
+        "type": "uinteger",
+        "label": "Orders"
+      },
+      {
+        "name": "converted_by_you",
+        "type": "uinteger",
+        "label": "Converted by you"
+      },
+      {
+        "name": "multi_touch",
+        "type": "uinteger",
+        "label": "Multi-touch orders"
+      },
+      {
+        "name": "with_other_partners",
+        "type": "uinteger",
+        "label": "With other partners"
+      },
+      {
+        "name": "assisted_for_other_partners",
+        "type": "uinteger",
+        "label": "Assisted for other partners"
+      }
+    ]
+  },
+  {
+    "name": "links",
+    "type": "array",
+    "label": "Links",
+    "spec": {
+      "type": "collection",
+      "label": "Link",
+      "spec": [
+        {
+          "name": "link_id",
+          "type": "uinteger",
+          "label": "Link ID"
+        },
+        {
+          "name": "link_name",
+          "type": "text",
+          "label": "Link name"
+        },
+        {
+          "name": "first_touch_orders",
+          "type": "uinteger",
+          "label": "First touch"
+        },
+        {
+          "name": "last_touch_orders",
+          "type": "uinteger",
+          "label": "Last touch"
+        },
+        {
+          "name": "assist_orders",
+          "type": "uinteger",
+          "label": "Assist"
+        },
+        {
+          "name": "single_touch_orders",
+          "type": "uinteger",
+          "label": "Single touch"
+        },
+        {
+          "name": "converted_orders",
+          "type": "uinteger",
+          "label": "Converted"
+        }
+      ]
+    }
+  },
+  {
+    "name": "paths",
+    "type": "array",
+    "label": "Sample paths",
+    "spec": {
+      "type": "collection",
+      "label": "Path",
+      "spec": [
+        {
+          "name": "order_id",
+          "type": "uinteger",
+          "label": "Order ID"
+        },
+        {
+          "name": "yours",
+          "type": "boolean",
+          "label": "Your order"
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "label": "Status"
+        },
+        {
+          "name": "offer_id",
+          "type": "uinteger",
+          "label": "Offer ID"
+        },
+        {
+          "name": "offer_name",
+          "type": "text",
+          "label": "Offer name"
+        },
+        {
+          "name": "ordered_at",
+          "type": "date",
+          "label": "Ordered at"
+        },
+        {
+          "name": "steps",
+          "type": "array",
+          "label": "Steps",
+          "spec": {
+            "type": "collection",
+            "label": "Step",
+            "spec": [
+              {
+                "name": "at",
+                "type": "date",
+                "label": "Time"
+              },
+              {
+                "name": "role",
+                "type": "text",
+                "label": "Role (first, last, assist, only)"
+              },
+              {
+                "name": "partner",
+                "type": "text",
+                "label": "Partner (you / other)"
+              },
+              {
+                "name": "kind",
+                "type": "text",
+                "label": "Kind (link / landing)"
+              },
+              {
+                "name": "link_id",
+                "type": "uinteger",
+                "label": "Link ID"
+              },
+              {
+                "name": "link_name",
+                "type": "text",
+                "label": "Link name"
+              },
+              {
+                "name": "landing",
+                "type": "text",
+                "label": "Landing"
+              },
+              {
+                "name": "source",
+                "type": "text",
+                "label": "Source"
+              },
+              {
+                "name": "utm_source",
+                "type": "text",
+                "label": "UTM source"
+              },
+              {
+                "name": "utm_medium",
+                "type": "text",
+                "label": "UTM medium"
+              },
+              {
+                "name": "utm_campaign",
+                "type": "text",
+                "label": "UTM campaign"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+]

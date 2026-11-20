@@ -1,0 +1,62 @@
+[
+  {
+    "name": "id",
+    "type": "uinteger",
+    "label": "Link ID"
+  },
+  {
+    "name": "name",
+    "type": "text",
+    "label": "Name"
+  },
+  {
+    "name": "offer_id",
+    "type": "uinteger",
+    "label": "Offer ID"
+  },
+  {
+    "name": "offer_name",
+    "type": "text",
+    "label": "Offer name"
+  },
+  {
+    "name": "offer_active",
+    "type": "boolean",
+    "label": "Offer active"
+  },
+  {
+    "name": "url",
+    "type": "url",
+    "label": "Link URL"
+  },
+  {
+    "name": "tracking_url_template",
+    "type": "text",
+    "label": "Tracking URL template"
+  },
+  {
+    "name": "clicks",
+    "type": "uinteger",
+    "label": "Clicks"
+  },
+  {
+    "name": "orders",
+    "type": "uinteger",
+    "label": "Orders"
+  },
+  {
+    "name": "delivered",
+    "type": "uinteger",
+    "label": "Delivered orders"
+  },
+  {
+    "name": "created_at",
+    "type": "date",
+    "label": "Created at"
+  },
+  {
+    "name": "test",
+    "type": "boolean",
+    "label": "Test link (nothing created)"
+  }
+]

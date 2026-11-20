@@ -1,0 +1,9 @@
+{
+  "label": "Get Statistics",
+  "description": "Gets orders, approvals, deliveries, earnings and clicks for a period (default: last 30 days), with rows per day, offer or link.",
+  "typeId": 4,
+  "crud": "read",
+  "accountName": "birinchishop",
+  "hookName": null,
+  "public": true
+}

@@ -1,0 +1,26 @@
+{
+  "date_from": "2026-10-22",
+  "date_to": "2026-11-20",
+  "timezone": "Asia/Tashkent",
+  "tracking_since": "2026-11-18T00:00:00.000Z",
+  "lookback_days": 30,
+  "summary": {
+    "orders": 40,
+    "converted_by_you": 38,
+    "multi_touch": 5,
+    "with_other_partners": 2,
+    "assisted_for_other_partners": 1
+  },
+  "links": [
+    {
+      "link_id": 9001,
+      "link_name": "Instagram reels",
+      "first_touch_orders": 10,
+      "last_touch_orders": 12,
+      "assist_orders": 2,
+      "single_touch_orders": 20,
+      "converted_orders": 30
+    }
+  ],
+  "paths": []
+}

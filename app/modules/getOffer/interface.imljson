@@ -1,0 +1,168 @@
+[
+  {
+    "name": "id",
+    "type": "uinteger",
+    "label": "Offer ID"
+  },
+  {
+    "name": "name",
+    "type": "text",
+    "label": "Name"
+  },
+  {
+    "name": "customer_price",
+    "type": "number",
+    "label": "Customer price (UZS)"
+  },
+  {
+    "name": "customer_price_is_minimum",
+    "type": "boolean",
+    "label": "Price is a minimum (variants)"
+  },
+  {
+    "name": "payout",
+    "type": "number",
+    "label": "Payout (UZS)"
+  },
+  {
+    "name": "payout_is_minimum",
+    "type": "boolean",
+    "label": "Payout is a minimum (variants)"
+  },
+  {
+    "name": "lead_bonus",
+    "type": "number",
+    "label": "Lead bonus (UZS)"
+  },
+  {
+    "name": "currency",
+    "type": "text",
+    "label": "Currency"
+  },
+  {
+    "name": "in_stock",
+    "type": "boolean",
+    "label": "In stock"
+  },
+  {
+    "name": "stock",
+    "type": "uinteger",
+    "label": "Stock"
+  },
+  {
+    "name": "sale_rate_percent",
+    "type": "number",
+    "label": "Sale rate (%)"
+  },
+  {
+    "name": "sale_rate_tier",
+    "type": "text",
+    "label": "Sale rate tier"
+  },
+  {
+    "name": "payment_type",
+    "type": "text",
+    "label": "Payment type"
+  },
+  {
+    "name": "image_url",
+    "type": "url",
+    "label": "Image URL"
+  },
+  {
+    "name": "video_url",
+    "type": "url",
+    "label": "Video URL"
+  },
+  {
+    "name": "has_variants",
+    "type": "boolean",
+    "label": "Has variants"
+  },
+  {
+    "name": "created_at",
+    "type": "date",
+    "label": "Created at"
+  },
+  {
+    "name": "description",
+    "type": "text",
+    "label": "Description"
+  },
+  {
+    "name": "images",
+    "type": "array",
+    "label": "Images",
+    "spec": {
+      "type": "url",
+      "label": "Image URL"
+    }
+  },
+  {
+    "name": "variants",
+    "type": "array",
+    "label": "Variants",
+    "spec": {
+      "type": "collection",
+      "label": "Variant",
+      "spec": [
+        {
+          "name": "id",
+          "type": "uinteger",
+          "label": "Variant ID"
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "label": "Name"
+        },
+        {
+          "name": "customer_price",
+          "type": "number",
+          "label": "Customer price (UZS)"
+        },
+        {
+          "name": "payout",
+          "type": "number",
+          "label": "Payout (UZS)"
+        },
+        {
+          "name": "in_stock",
+          "type": "boolean",
+          "label": "In stock"
+        },
+        {
+          "name": "image_url",
+          "type": "url",
+          "label": "Image URL"
+        },
+        {
+          "name": "types",
+          "type": "array",
+          "label": "Types",
+          "spec": {
+            "type": "collection",
+            "label": "Type",
+            "spec": [
+              {
+                "name": "id",
+                "type": "uinteger",
+                "label": "Variant type ID"
+              },
+              {
+                "name": "name",
+                "type": "text",
+                "label": "Name"
+              },
+              {
+                "name": "in_stock",
+                "type": "boolean",
+                "label": "In stock"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+]

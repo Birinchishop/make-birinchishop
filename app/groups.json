@@ -1,0 +1,43 @@
+[
+  {
+    "label": "Orders",
+    "modules": [
+      "watchNewOrders",
+      "watchOrderStatusChanges",
+      "watchOrderEvents",
+      "createOrder",
+      "getOrder",
+      "searchOrders",
+      "setTestOrderStatus"
+    ]
+  },
+  {
+    "label": "Links",
+    "modules": [
+      "createLink",
+      "searchLinks"
+    ]
+  },
+  {
+    "label": "Offers",
+    "modules": [
+      "getOffer",
+      "searchOffers"
+    ]
+  },
+  {
+    "label": "Reports",
+    "modules": [
+      "getStatistics",
+      "getCohortReport",
+      "getAttributionReport",
+      "getAccount"
+    ]
+  },
+  {
+    "label": "Other",
+    "modules": [
+      "makeApiCall"
+    ]
+  }
+]

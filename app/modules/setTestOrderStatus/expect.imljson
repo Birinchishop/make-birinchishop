@@ -1,0 +1,50 @@
+[
+  {
+    "name": "order_id",
+    "type": "uinteger",
+    "label": "Test order ID",
+    "required": true,
+    "help": "ID returned by Create an Order with a test key (≥ 2000000000)."
+  },
+  {
+    "name": "status",
+    "type": "select",
+    "label": "New status",
+    "required": true,
+    "default": "delivered",
+    "options": [
+      {
+        "label": "Processing",
+        "value": "processing"
+      },
+      {
+        "label": "Callback (customer asked to be called later)",
+        "value": "callback"
+      },
+      {
+        "label": "Confirmed by phone",
+        "value": "confirmed"
+      },
+      {
+        "label": "Packed",
+        "value": "packed"
+      },
+      {
+        "label": "Shipping",
+        "value": "shipping"
+      },
+      {
+        "label": "Delivered (payout earned)",
+        "value": "delivered"
+      },
+      {
+        "label": "Returned (refused at delivery)",
+        "value": "returned"
+      },
+      {
+        "label": "Cancelled (no payout)",
+        "value": "cancelled"
+      }
+    ]
+  }
+]

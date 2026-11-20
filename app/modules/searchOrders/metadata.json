@@ -1,0 +1,9 @@
+{
+  "label": "Search Orders",
+  "description": "Searches your orders by status, dates, offer, link, external ID or click ID.",
+  "typeId": 9,
+  "crud": "read",
+  "accountName": "birinchishop",
+  "hookName": null,
+  "public": true
+}

@@ -1,0 +1,9 @@
+{
+  "label": "Create an Order",
+  "description": "Creates a REAL cash-on-delivery order for a customer who asked to buy; a call center phones them. Test keys create nothing.",
+  "typeId": 4,
+  "crud": "create",
+  "accountName": "birinchishop",
+  "hookName": null,
+  "public": true
+}

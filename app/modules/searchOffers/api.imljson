@@ -1,0 +1,25 @@
+{
+  "url": "/offers",
+  "method": "GET",
+  "qs": {
+    "search": "{{parameters.search}}",
+    "in_stock_only": "{{parameters.in_stock_only}}",
+    "min_payout": "{{parameters.min_payout}}",
+    "min_sale_rate": "{{parameters.min_sale_rate}}",
+    "sort": "{{parameters.sort}}",
+    "lang": "{{parameters.lang}}",
+    "limit": 100,
+    "page": 1
+  },
+  "response": {
+    "iterate": "{{body.data}}",
+    "limit": "{{parameters.limit}}",
+    "output": "{{item}}"
+  },
+  "pagination": {
+    "qs": {
+      "page": "{{pagination.page}}"
+    },
+    "condition": "{{body.meta.page < body.meta.total_pages}}"
+  }
+}

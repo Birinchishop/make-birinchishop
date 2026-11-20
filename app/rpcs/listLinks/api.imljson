@@ -1,0 +1,22 @@
+{
+  "url": "/links",
+  "method": "GET",
+  "qs": {
+    "limit": 100,
+    "page": 1
+  },
+  "response": {
+    "iterate": "{{body.data}}",
+    "limit": 500,
+    "output": {
+      "label": "{{item.name}} — {{item.offer_name}} (#{{item.id}})",
+      "value": "{{item.id}}"
+    }
+  },
+  "pagination": {
+    "qs": {
+      "page": "{{pagination.page}}"
+    },
+    "condition": "{{body.meta.page < body.meta.total_pages}}"
+  }
+}

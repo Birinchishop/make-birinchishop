@@ -1,0 +1,9 @@
+{
+  "label": "Watch Order Status Changes",
+  "description": "Triggers when an order moves to another status (confirmed, shipping, delivered, returned, cancelled...).",
+  "typeId": 10,
+  "crud": null,
+  "accountName": "birinchishop",
+  "hookName": "orderStatusChanged",
+  "public": true
+}

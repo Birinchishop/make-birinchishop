@@ -1,0 +1,19 @@
+{
+  "id": 1001,
+  "name": "Partner name",
+  "status": "active",
+  "balance": 350000,
+  "balance_frozen": 0,
+  "min_withdrawal": 50000,
+  "currency": "UZS",
+  "created_at": "2026-06-01T10:00:00.000Z",
+  "api_key": {
+    "name": "Make",
+    "mode": "live",
+    "scopes": [
+      "account:read",
+      "orders:read"
+    ],
+    "expires_at": null
+  }
+}

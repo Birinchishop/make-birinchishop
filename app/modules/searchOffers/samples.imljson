@@ -1,0 +1,19 @@
+{
+  "id": 512,
+  "name": "Smart watch X8",
+  "customer_price": 199000,
+  "customer_price_is_minimum": false,
+  "payout": 50000,
+  "payout_is_minimum": false,
+  "lead_bonus": 0,
+  "currency": "UZS",
+  "in_stock": true,
+  "stock": 140,
+  "sale_rate_percent": 38,
+  "sale_rate_tier": "good",
+  "payment_type": "after_delivery",
+  "image_url": "https://birinchishop.uz/uploads/offers/sample.jpg",
+  "video_url": null,
+  "has_variants": false,
+  "created_at": "2026-10-01T08:00:00.000Z"
+}

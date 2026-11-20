@@ -1,0 +1,115 @@
+[
+  {
+    "name": "warning",
+    "type": "banner",
+    "title": "This creates a REAL order",
+    "text": "With a live key a call center phones the customer and a courier delivers the product (cash on delivery). Send only real customers who asked to order, with their correct phone number. **Never send test, sample or fake orders — the account gets blocked.** Build and test with a test key (`bsk_test_...`): it runs every check but creates nothing."
+  },
+  {
+    "name": "link_id",
+    "type": "select",
+    "label": "Link",
+    "options": "rpc://listLinks",
+    "mode": "edit",
+    "help": "Your tracking link for the offer; it decides the offer and your payout.",
+    "required": true
+  },
+  {
+    "name": "phone",
+    "type": "text",
+    "label": "Customer phone",
+    "required": true,
+    "validate": {
+      "pattern": "^[+0-9 ()-]{9,20}$"
+    },
+    "help": "Uzbekistan mobile number, e.g. `+998901234567`."
+  },
+  {
+    "name": "name",
+    "type": "text",
+    "label": "Customer name",
+    "validate": {
+      "max": 100
+    },
+    "help": "Default: \"Mijoz\" plus the last 4 digits of the phone."
+  },
+  {
+    "name": "region",
+    "type": "text",
+    "label": "Region",
+    "validate": {
+      "max": 64
+    }
+  },
+  {
+    "name": "variant_id",
+    "type": "uinteger",
+    "label": "Variant ID",
+    "help": "For offers with variants (see Get an Offer → Variants)."
+  },
+  {
+    "name": "variant_type_id",
+    "type": "uinteger",
+    "label": "Variant type ID",
+    "help": "Required when the chosen variant has types (e.g. size)."
+  },
+  {
+    "name": "external_id",
+    "type": "text",
+    "label": "External ID",
+    "validate": {
+      "pattern": "^[A-Za-z0-9._:-]*$",
+      "max": 128
+    },
+    "help": "Your own lead ID; returned in events and searchable."
+  },
+  {
+    "name": "click_id",
+    "type": "text",
+    "label": "Click ID",
+    "validate": {
+      "max": 255
+    },
+    "help": "Tracker click ID; returned in events and postbacks."
+  },
+  {
+    "name": "sub1",
+    "type": "text",
+    "label": "Sub1",
+    "advanced": true
+  },
+  {
+    "name": "sub2",
+    "type": "text",
+    "label": "Sub2",
+    "advanced": true
+  },
+  {
+    "name": "sub3",
+    "type": "text",
+    "label": "Sub3",
+    "advanced": true
+  },
+  {
+    "name": "sub4",
+    "type": "text",
+    "label": "Sub4",
+    "advanced": true
+  },
+  {
+    "name": "sub5",
+    "type": "text",
+    "label": "Sub5",
+    "advanced": true
+  },
+  {
+    "name": "idempotency_key",
+    "type": "text",
+    "label": "Idempotency key",
+    "validate": {
+      "pattern": "^[A-Za-z0-9._:-]*$",
+      "max": 128
+    },
+    "help": "Strongly recommended: map a stable unique value (lead ID, row ID). Sending the same key again returns the existing order instead of creating a second one, so retries are safe."
+  }
+]

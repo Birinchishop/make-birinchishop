@@ -1,0 +1,72 @@
+[
+  {
+    "name": "id",
+    "type": "uinteger",
+    "label": "Account ID"
+  },
+  {
+    "name": "name",
+    "type": "text",
+    "label": "Name"
+  },
+  {
+    "name": "status",
+    "type": "text",
+    "label": "Status"
+  },
+  {
+    "name": "balance",
+    "type": "number",
+    "label": "Balance (UZS)"
+  },
+  {
+    "name": "balance_frozen",
+    "type": "number",
+    "label": "Frozen balance (UZS)"
+  },
+  {
+    "name": "min_withdrawal",
+    "type": "number",
+    "label": "Minimum withdrawal (UZS)"
+  },
+  {
+    "name": "currency",
+    "type": "text",
+    "label": "Currency"
+  },
+  {
+    "name": "created_at",
+    "type": "date",
+    "label": "Created at"
+  },
+  {
+    "name": "api_key",
+    "type": "collection",
+    "label": "API key",
+    "spec": [
+      {
+        "name": "name",
+        "type": "text",
+        "label": "Name"
+      },
+      {
+        "name": "mode",
+        "type": "text",
+        "label": "Mode (live / test)"
+      },
+      {
+        "name": "scopes",
+        "type": "array",
+        "label": "Scopes",
+        "spec": {
+          "type": "text"
+        }
+      },
+      {
+        "name": "expires_at",
+        "type": "date",
+        "label": "Expires at"
+      }
+    ]
+  }
+]

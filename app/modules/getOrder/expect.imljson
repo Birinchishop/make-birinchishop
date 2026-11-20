@@ -1,0 +1,9 @@
+[
+  {
+    "name": "order_id",
+    "type": "uinteger",
+    "label": "Order ID",
+    "required": true,
+    "help": "Test orders (test keys) are kept for 24 hours."
+  }
+]

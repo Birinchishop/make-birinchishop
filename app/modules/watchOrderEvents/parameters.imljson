@@ -1,0 +1,36 @@
+[
+  {
+    "name": "type",
+    "type": "select",
+    "label": "Event type",
+    "options": [
+      {
+        "label": "Order created",
+        "value": "order.created"
+      },
+      {
+        "label": "Order status changed",
+        "value": "order.status_changed"
+      }
+    ],
+    "help": "Leave empty for both."
+  },
+  {
+    "name": "limit",
+    "type": "uinteger",
+    "label": "Limit",
+    "required": true,
+    "default": 100,
+    "validate": {
+      "min": 1,
+      "max": 1000
+    },
+    "help": "Maximum number of bundles this module returns in one execution."
+  },
+  {
+    "name": "about",
+    "type": "banner",
+    "title": "Event feed",
+    "text": "Reads `GET /events` in order, continuing after the last processed event. The feed keeps 90 days; the first run starts at the oldest kept event and returns at most Limit events per run. Needs the `events:read` and `orders:read` scopes. Prefer the instant triggers when your key can manage webhooks."
+  }
+]

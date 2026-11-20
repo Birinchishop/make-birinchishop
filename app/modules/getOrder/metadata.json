@@ -1,0 +1,9 @@
+{
+  "label": "Get an Order",
+  "description": "Gets an order by ID. The customer phone is always masked.",
+  "typeId": 4,
+  "crud": "read",
+  "accountName": "birinchishop",
+  "hookName": null,
+  "public": true
+}

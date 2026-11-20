@@ -1,0 +1,13 @@
+{
+  "id": 9001,
+  "name": "Instagram reels",
+  "offer_id": 512,
+  "offer_name": "Smart watch X8",
+  "offer_active": true,
+  "url": "https://birinchishop.uz/l/AbC123",
+  "tracking_url_template": "https://birinchishop.uz/l/AbC123?click_id={click_id}&sub1={sub1}&sub2={sub2}&sub3={sub3}&sub4={sub4}&sub5={sub5}",
+  "clicks": 0,
+  "orders": 0,
+  "delivered": 0,
+  "created_at": "2026-11-20T09:00:00.000Z"
+}

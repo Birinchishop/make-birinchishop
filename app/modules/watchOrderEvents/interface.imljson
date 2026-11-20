@@ -1,0 +1,249 @@
+[
+  {
+    "name": "id",
+    "type": "uinteger",
+    "label": "Event ID"
+  },
+  {
+    "name": "type",
+    "type": "text",
+    "label": "Event type"
+  },
+  {
+    "name": "created_at",
+    "type": "date",
+    "label": "Event time"
+  },
+  {
+    "name": "order_id",
+    "type": "uinteger",
+    "label": "Order ID"
+  },
+  {
+    "name": "status",
+    "type": "text",
+    "label": "Status"
+  },
+  {
+    "name": "previous_status",
+    "type": "text",
+    "label": "Previous status"
+  },
+  {
+    "name": "conversion_status",
+    "type": "text",
+    "label": "Conversion status"
+  },
+  {
+    "name": "order",
+    "type": "collection",
+    "label": "Order",
+    "spec": [
+      {
+        "name": "id",
+        "type": "uinteger",
+        "label": "Order ID"
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "label": "Status"
+      },
+      {
+        "name": "conversion_status",
+        "type": "text",
+        "label": "Conversion status"
+      },
+      {
+        "name": "created_at",
+        "type": "date",
+        "label": "Created at"
+      },
+      {
+        "name": "updated_at",
+        "type": "date",
+        "label": "Updated at"
+      },
+      {
+        "name": "offer",
+        "type": "collection",
+        "label": "Offer",
+        "spec": [
+          {
+            "name": "id",
+            "type": "uinteger",
+            "label": "Offer ID"
+          },
+          {
+            "name": "name",
+            "type": "text",
+            "label": "Offer name"
+          }
+        ]
+      },
+      {
+        "name": "link",
+        "type": "collection",
+        "label": "Link",
+        "spec": [
+          {
+            "name": "id",
+            "type": "uinteger",
+            "label": "Link ID"
+          },
+          {
+            "name": "name",
+            "type": "text",
+            "label": "Link name"
+          }
+        ]
+      },
+      {
+        "name": "variant",
+        "type": "collection",
+        "label": "Variant",
+        "spec": [
+          {
+            "name": "id",
+            "type": "uinteger",
+            "label": "Variant ID"
+          },
+          {
+            "name": "name",
+            "type": "text",
+            "label": "Variant name"
+          },
+          {
+            "name": "type_id",
+            "type": "uinteger",
+            "label": "Variant type ID"
+          },
+          {
+            "name": "type_name",
+            "type": "text",
+            "label": "Variant type name"
+          }
+        ]
+      },
+      {
+        "name": "customer",
+        "type": "collection",
+        "label": "Customer",
+        "spec": [
+          {
+            "name": "name",
+            "type": "text",
+            "label": "Name"
+          },
+          {
+            "name": "phone_masked",
+            "type": "text",
+            "label": "Phone (masked)"
+          },
+          {
+            "name": "region",
+            "type": "text",
+            "label": "Region"
+          }
+        ]
+      },
+      {
+        "name": "customer_price",
+        "type": "number",
+        "label": "Customer price (UZS)"
+      },
+      {
+        "name": "payout",
+        "type": "number",
+        "label": "Payout (UZS)"
+      },
+      {
+        "name": "payout_status",
+        "type": "text",
+        "label": "Payout status"
+      },
+      {
+        "name": "currency",
+        "type": "text",
+        "label": "Currency"
+      },
+      {
+        "name": "delivery_date",
+        "type": "text",
+        "label": "Expected delivery date (YYYY-MM-DD)"
+      },
+      {
+        "name": "operator_note",
+        "type": "text",
+        "label": "Call center note"
+      },
+      {
+        "name": "courier_note",
+        "type": "text",
+        "label": "Courier note"
+      },
+      {
+        "name": "source",
+        "type": "text",
+        "label": "Source"
+      },
+      {
+        "name": "sale_chance_percent",
+        "type": "number",
+        "label": "Sale chance (%)"
+      },
+      {
+        "name": "tracking",
+        "type": "collection",
+        "label": "Tracking",
+        "spec": [
+          {
+            "name": "click_id",
+            "type": "text",
+            "label": "Click ID"
+          },
+          {
+            "name": "sub1",
+            "type": "text",
+            "label": "Sub1"
+          },
+          {
+            "name": "sub2",
+            "type": "text",
+            "label": "Sub2"
+          },
+          {
+            "name": "sub3",
+            "type": "text",
+            "label": "Sub3"
+          },
+          {
+            "name": "sub4",
+            "type": "text",
+            "label": "Sub4"
+          },
+          {
+            "name": "sub5",
+            "type": "text",
+            "label": "Sub5"
+          },
+          {
+            "name": "external_id",
+            "type": "text",
+            "label": "External ID"
+          }
+        ]
+      },
+      {
+        "name": "test",
+        "type": "boolean",
+        "label": "Test order (nothing real)"
+      },
+      {
+        "name": "live_orders_allowed",
+        "type": "boolean",
+        "label": "Live orders allowed (test keys only)"
+      }
+    ]
+  }
+]

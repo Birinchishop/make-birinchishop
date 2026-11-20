@@ -1,0 +1,290 @@
+[
+  {
+    "name": "weeks",
+    "type": "uinteger",
+    "label": "Weeks"
+  },
+  {
+    "name": "date_from",
+    "type": "text",
+    "label": "Date from"
+  },
+  {
+    "name": "date_to",
+    "type": "text",
+    "label": "Date to"
+  },
+  {
+    "name": "timezone",
+    "type": "text",
+    "label": "Time zone"
+  },
+  {
+    "name": "week_starts_on",
+    "type": "text",
+    "label": "Week starts on"
+  },
+  {
+    "name": "totals",
+    "type": "collection",
+    "label": "Totals",
+    "spec": [
+      {
+        "name": "orders",
+        "type": "uinteger",
+        "label": "Orders"
+      },
+      {
+        "name": "delivered",
+        "type": "uinteger",
+        "label": "Delivered"
+      },
+      {
+        "name": "delivered_rate_percent",
+        "type": "number",
+        "label": "Delivered rate (%)"
+      },
+      {
+        "name": "in_progress",
+        "type": "uinteger",
+        "label": "In progress"
+      }
+    ]
+  },
+  {
+    "name": "average",
+    "type": "collection",
+    "label": "Average (complete cohorts only)",
+    "spec": [
+      {
+        "name": "3",
+        "type": "collection",
+        "label": "Within 3 days",
+        "spec": [
+          {
+            "name": "delivered",
+            "type": "uinteger",
+            "label": "Delivered"
+          },
+          {
+            "name": "rate_percent",
+            "type": "number",
+            "label": "Rate (%)"
+          },
+          {
+            "name": "orders",
+            "type": "uinteger",
+            "label": "Orders (average only)"
+          }
+        ]
+      },
+      {
+        "name": "7",
+        "type": "collection",
+        "label": "Within 7 days",
+        "spec": [
+          {
+            "name": "delivered",
+            "type": "uinteger",
+            "label": "Delivered"
+          },
+          {
+            "name": "rate_percent",
+            "type": "number",
+            "label": "Rate (%)"
+          },
+          {
+            "name": "orders",
+            "type": "uinteger",
+            "label": "Orders (average only)"
+          }
+        ]
+      },
+      {
+        "name": "14",
+        "type": "collection",
+        "label": "Within 14 days",
+        "spec": [
+          {
+            "name": "delivered",
+            "type": "uinteger",
+            "label": "Delivered"
+          },
+          {
+            "name": "rate_percent",
+            "type": "number",
+            "label": "Rate (%)"
+          },
+          {
+            "name": "orders",
+            "type": "uinteger",
+            "label": "Orders (average only)"
+          }
+        ]
+      },
+      {
+        "name": "30",
+        "type": "collection",
+        "label": "Within 30 days",
+        "spec": [
+          {
+            "name": "delivered",
+            "type": "uinteger",
+            "label": "Delivered"
+          },
+          {
+            "name": "rate_percent",
+            "type": "number",
+            "label": "Rate (%)"
+          },
+          {
+            "name": "orders",
+            "type": "uinteger",
+            "label": "Orders (average only)"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "cohorts",
+    "type": "array",
+    "label": "Cohorts",
+    "spec": {
+      "type": "collection",
+      "label": "Cohort",
+      "spec": [
+        {
+          "name": "week_start",
+          "type": "text",
+          "label": "Week start"
+        },
+        {
+          "name": "week_end",
+          "type": "text",
+          "label": "Week end"
+        },
+        {
+          "name": "complete",
+          "type": "boolean",
+          "label": "Week complete"
+        },
+        {
+          "name": "orders",
+          "type": "uinteger",
+          "label": "Orders"
+        },
+        {
+          "name": "delivered",
+          "type": "uinteger",
+          "label": "Delivered"
+        },
+        {
+          "name": "delivered_rate_percent",
+          "type": "number",
+          "label": "Delivered rate (%)"
+        },
+        {
+          "name": "in_progress",
+          "type": "uinteger",
+          "label": "In progress"
+        },
+        {
+          "name": "delivered_within_days",
+          "type": "collection",
+          "label": "Delivered within (empty = not enough time passed)",
+          "spec": [
+            {
+              "name": "3",
+              "type": "collection",
+              "label": "Within 3 days",
+              "spec": [
+                {
+                  "name": "delivered",
+                  "type": "uinteger",
+                  "label": "Delivered"
+                },
+                {
+                  "name": "rate_percent",
+                  "type": "number",
+                  "label": "Rate (%)"
+                },
+                {
+                  "name": "orders",
+                  "type": "uinteger",
+                  "label": "Orders (average only)"
+                }
+              ]
+            },
+            {
+              "name": "7",
+              "type": "collection",
+              "label": "Within 7 days",
+              "spec": [
+                {
+                  "name": "delivered",
+                  "type": "uinteger",
+                  "label": "Delivered"
+                },
+                {
+                  "name": "rate_percent",
+                  "type": "number",
+                  "label": "Rate (%)"
+                },
+                {
+                  "name": "orders",
+                  "type": "uinteger",
+                  "label": "Orders (average only)"
+                }
+              ]
+            },
+            {
+              "name": "14",
+              "type": "collection",
+              "label": "Within 14 days",
+              "spec": [
+                {
+                  "name": "delivered",
+                  "type": "uinteger",
+                  "label": "Delivered"
+                },
+                {
+                  "name": "rate_percent",
+                  "type": "number",
+                  "label": "Rate (%)"
+                },
+                {
+                  "name": "orders",
+                  "type": "uinteger",
+                  "label": "Orders (average only)"
+                }
+              ]
+            },
+            {
+              "name": "30",
+              "type": "collection",
+              "label": "Within 30 days",
+              "spec": [
+                {
+                  "name": "delivered",
+                  "type": "uinteger",
+                  "label": "Delivered"
+                },
+                {
+                  "name": "rate_percent",
+                  "type": "number",
+                  "label": "Rate (%)"
+                },
+                {
+                  "name": "orders",
+                  "type": "uinteger",
+                  "label": "Orders (average only)"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "label": "Get an Attribution Report",
+  "description": "Gets the multi-touch attribution report: which of your links were first, last or assisting touches before orders (report only; payouts are not affected).",
+  "typeId": 4,
+  "crud": "read",
+  "accountName": "birinchishop",
+  "hookName": null,
+  "public": true
+}

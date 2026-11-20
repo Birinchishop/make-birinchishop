@@ -1,0 +1,57 @@
+{
+  "weeks": 12,
+  "date_from": "2026-08-31",
+  "date_to": "2026-11-22",
+  "timezone": "Asia/Tashkent",
+  "week_starts_on": "monday",
+  "totals": {
+    "orders": 300,
+    "delivered": 96,
+    "delivered_rate_percent": 32,
+    "in_progress": 20
+  },
+  "average": {
+    "3": {
+      "delivered": 40,
+      "rate_percent": 14
+    },
+    "7": {
+      "delivered": 80,
+      "rate_percent": 28
+    },
+    "14": {
+      "delivered": 90,
+      "rate_percent": 31
+    },
+    "30": {
+      "delivered": 94,
+      "rate_percent": 32
+    }
+  },
+  "cohorts": [
+    {
+      "week_start": "2026-11-02",
+      "week_end": "2026-11-08",
+      "complete": true,
+      "orders": 25,
+      "delivered": 8,
+      "delivered_rate_percent": 32,
+      "in_progress": 1,
+      "delivered_within_days": {
+        "3": {
+          "delivered": 3,
+          "rate_percent": 12
+        },
+        "7": {
+          "delivered": 7,
+          "rate_percent": 28
+        },
+        "14": {
+          "delivered": 8,
+          "rate_percent": 32
+        },
+        "30": null
+      }
+    }
+  ]
+}

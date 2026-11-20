@@ -1,0 +1,95 @@
+[
+  {
+    "name": "search",
+    "type": "text",
+    "label": "Name contains",
+    "validate": {
+      "max": 100
+    },
+    "help": "Uzbek, Russian or English; typos are tolerated."
+  },
+  {
+    "name": "in_stock_only",
+    "type": "boolean",
+    "label": "In stock only",
+    "default": true
+  },
+  {
+    "name": "min_payout",
+    "type": "uinteger",
+    "label": "Minimum payout (UZS)"
+  },
+  {
+    "name": "min_sale_rate",
+    "type": "uinteger",
+    "label": "Minimum sale rate (%)",
+    "validate": {
+      "min": 0,
+      "max": 100
+    }
+  },
+  {
+    "name": "sort",
+    "type": "select",
+    "label": "Sort",
+    "options": [
+      {
+        "label": "Recommended",
+        "value": "recommended"
+      },
+      {
+        "label": "Best selling (highest sale rate)",
+        "value": "best_selling"
+      },
+      {
+        "label": "Highest payout",
+        "value": "highest_payout"
+      },
+      {
+        "label": "Highest lead bonus",
+        "value": "highest_lead_bonus"
+      },
+      {
+        "label": "Highest stock",
+        "value": "highest_stock"
+      },
+      {
+        "label": "Newest",
+        "value": "newest"
+      }
+    ],
+    "default": "recommended"
+  },
+  {
+    "name": "lang",
+    "type": "select",
+    "label": "Language of names",
+    "options": [
+      {
+        "label": "Uzbek (original)",
+        "value": "uz"
+      },
+      {
+        "label": "Russian",
+        "value": "ru"
+      },
+      {
+        "label": "English",
+        "value": "en"
+      }
+    ],
+    "default": "uz"
+  },
+  {
+    "name": "limit",
+    "type": "uinteger",
+    "label": "Limit",
+    "required": true,
+    "default": 20,
+    "validate": {
+      "min": 1,
+      "max": 1000
+    },
+    "help": "Maximum number of bundles this module returns in one execution."
+  }
+]

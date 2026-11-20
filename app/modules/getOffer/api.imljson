@@ -1,0 +1,10 @@
+{
+  "url": "/offers/{{parameters.offer_id}}",
+  "method": "GET",
+  "qs": {
+    "lang": "{{parameters.lang}}"
+  },
+  "response": {
+    "output": "{{body.data}}"
+  }
+}

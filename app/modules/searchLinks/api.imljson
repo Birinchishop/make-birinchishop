@@ -1,0 +1,20 @@
+{
+  "url": "/links",
+  "method": "GET",
+  "qs": {
+    "offer_id": "{{parameters.offer_id}}",
+    "limit": 100,
+    "page": 1
+  },
+  "response": {
+    "iterate": "{{body.data}}",
+    "limit": "{{parameters.limit}}",
+    "output": "{{item}}"
+  },
+  "pagination": {
+    "qs": {
+      "page": "{{pagination.page}}"
+    },
+    "condition": "{{body.meta.page < body.meta.total_pages}}"
+  }
+}

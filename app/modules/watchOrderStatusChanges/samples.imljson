@@ -1,0 +1,50 @@
+{
+  "event_id": "evt_778950",
+  "type": "order.status_changed",
+  "event_created_at": "2026-11-22T14:02:00.000Z",
+  "order_id": 123456,
+  "event_status": "delivered",
+  "previous_status": "shipping",
+  "status": "delivered",
+  "conversion_status": "sale",
+  "test": false,
+  "order": {
+    "id": 123456,
+    "status": "delivered",
+    "conversion_status": "sale",
+    "created_at": "2026-11-20T09:15:00.000Z",
+    "updated_at": "2026-11-22T14:02:00.000Z",
+    "offer": {
+      "id": 512,
+      "name": "Smart watch X8"
+    },
+    "link": {
+      "id": 9001,
+      "name": "Instagram reels"
+    },
+    "variant": null,
+    "customer": {
+      "name": "Mijoz 4567",
+      "phone_masked": "+998 ** *** 45 67",
+      "region": "Toshkent shahri"
+    },
+    "customer_price": 199000,
+    "payout": 50000,
+    "payout_status": "pending",
+    "currency": "UZS",
+    "delivery_date": null,
+    "operator_note": null,
+    "courier_note": null,
+    "source": "api",
+    "sale_chance_percent": null,
+    "tracking": {
+      "click_id": "abc123",
+      "sub1": "campaign-1",
+      "sub2": null,
+      "sub3": null,
+      "sub4": null,
+      "sub5": null,
+      "external_id": "lead-42"
+    }
+  }
+}
