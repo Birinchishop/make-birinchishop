@@ -16,9 +16,8 @@
       "order": "asc"
     },
     "output": {
-      "{{...}}": "{{omit(item, 'created_at', 'order')}}",
-      "created_at": "{{parseDate(item.created_at, 'YYYY-MM-DDTHH:mm:ssZ')}}",
-      "order": "{{parseDateFields(item.order)}}"
+      "{{...}}": "{{omit(item, 'created_at')}}",
+      "created_at": "{{parseDate(item.created_at, 'YYYY-MM-DDTHH:mm:ssZ')}}"
     }
   },
   "pagination": {

@@ -13,7 +13,7 @@
       "status": "{{body.data.status}}",
       "conversion_status": "{{body.data.conversion_status}}",
       "test": "{{payload.test === true}}",
-      "order": "{{parseDateFields(body.data)}}"
+      "order": "{{body.data}}"
     }
   }
 }

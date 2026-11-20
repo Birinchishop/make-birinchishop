@@ -21,13 +21,13 @@
       },
       {
         "name": "created_at",
-        "type": "date",
-        "label": "Created at"
+        "type": "text",
+        "label": "Created at (ISO 8601, UTC)"
       },
       {
         "name": "updated_at",
-        "type": "date",
-        "label": "Updated at"
+        "type": "text",
+        "label": "Updated at (ISO 8601, UTC)"
       },
       {
         "name": "offer",

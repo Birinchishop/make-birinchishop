@@ -64,8 +64,8 @@
       },
       {
         "name": "expires_at",
-        "type": "date",
-        "label": "Expires at"
+        "type": "text",
+        "label": "Expires at (ISO 8601, UTC)"
       }
     ]
   }

@@ -6,9 +6,6 @@
     "status": "{{parameters.status}}"
   },
   "response": {
-    "output": {
-      "{{...}}": "{{omit(body.data, 'order')}}",
-      "order": "{{parseDateFields(body.data.order)}}"
-    }
+    "output": "{{body.data}}"
   }
 }

@@ -7,8 +7,7 @@
   },
   "response": {
     "output": {
-      "{{...}}": "{{omit(body.data, 'paths')}}",
-      "paths": "{{parseDateFields(body.data.paths)}}",
+      "{{...}}": "{{body.data}}",
       "date_from": "{{body.meta.date_from}}",
       "date_to": "{{body.meta.date_to}}",
       "timezone": "{{body.meta.timezone}}"

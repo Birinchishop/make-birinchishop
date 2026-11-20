@@ -137,8 +137,8 @@
         },
         {
           "name": "ordered_at",
-          "type": "date",
-          "label": "Ordered at"
+          "type": "text",
+          "label": "Ordered at (ISO 8601, UTC)"
         },
         {
           "name": "steps",
@@ -150,8 +150,8 @@
             "spec": [
               {
                 "name": "at",
-                "type": "date",
-                "label": "Time"
+                "type": "text",
+                "label": "Time (ISO 8601, UTC)"
               },
               {
                 "name": "role",

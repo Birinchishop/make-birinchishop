@@ -15,23 +15,21 @@ const UA = 'birinchishop-make/1.0';
 
 const files = new Map();
 const put = (path, data) => files.set(path, `${JSON.stringify(data, null, 2)}\n`);
-const putText = (path, text) => files.set(path, text.endsWith('\n') ? text : `${text}\n`);
 
 // ─── Dates in the output ──────────────────────────────────────────────
 // The API returns timestamps as ISO 8601 UTC strings (e.g. 2026-11-20T09:15:00.000Z) and
 // date-only values as YYYY-MM-DD (those stay text). Top-level timestamps are parsed with
-// parseDate; nested ones (inside `order`, `api_key`, `paths[]`) with the custom IML function
-// parseDateFields (app/functions), which converts `*_at` / `at` keys at any depth.
+// parseDate. Nested ones (inside `order`, `api_key`, `paths[]`) cannot be overridden key by key
+// without a custom IML function (not available on our Make plan), so they stay ISO 8601 strings
+// and are typed as text in the interface.
 const DATE_FMT = 'YYYY-MM-DDTHH:mm:ssZ';
 const parsed = (expr) => `{{parseDate(${expr}, '${DATE_FMT}')}}`;
-const parsedNested = (expr) => `{{parseDateFields(${expr})}}`;
 /** Whole object as returned by the API, with its timestamps parsed. */
-function withDates(src, dateKeys, nestedKeys = []) {
-  const omitted = [...dateKeys, ...nestedKeys].map((k) => `'${k}'`).join(', ');
+function withDates(src, dateKeys) {
+  const omitted = dateKeys.map((k) => `'${k}'`).join(', ');
   return {
     '{{...}}': `{{omit(${src}, ${omitted})}}`,
     ...Object.fromEntries(dateKeys.map((k) => [k, parsed(`${src}.${k}`)])),
-    ...Object.fromEntries(nestedKeys.map((k) => [k, parsedNested(`${src}.${k}`)])),
   };
 }
 /** Optional date parameter → formatted string, or not sent at all when empty. */
@@ -118,6 +116,12 @@ const ORDER_SPEC = [
   bool('test', 'Test order (nothing real)'),
   bool('live_orders_allowed', 'Live orders allowed (test keys only)'),
 ];
+
+// The same order nested in another output (triggers, Set a test order status): its timestamps
+// stay ISO 8601 strings, so they are typed as text.
+const isoText = (name, label) => text(name, `${label} (ISO 8601, UTC)`);
+const NESTED_ORDER_SPEC = ORDER_SPEC.map((p) =>
+  p.name === 'created_at' || p.name === 'updated_at' ? isoText(p.name, p.label) : p);
 
 const ORDER_SAMPLE = {
   id: 123456,
@@ -358,66 +362,6 @@ function webhook(name, label, eventType) {
 webhook('orderCreated', 'Birinchishop: order created', 'order.created');
 webhook('orderStatusChanged', 'Birinchishop: order status changed', 'order.status_changed');
 
-// ─── Custom IML functions ─────────────────────────────────────────────
-// Make: App → Functions → name + code (one `function <name>(...)`) + test (`it` / `assert`).
-
-putText('functions/parseDateFields/code.js', `function parseDateFields(value) {
-    // Parses ISO 8601 timestamps (e.g. "2026-11-20T09:15:00.000Z") in keys named "at" or
-    // ending in "_at", at any depth, into dates. Everything else is returned unchanged:
-    // other keys, date-only values ("2026-11-20"), null, and strings that are not a valid timestamp.
-    const ISO = /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?(Z|[+-]\\d{2}:?\\d{2})$/;
-    const isDateKey = (key) => key === 'at' || /_at$/.test(key);
-    const walk = (v, depth) => {
-        if (depth > 20 || v === null || typeof v !== 'object' || v instanceof Date) return v;
-        if (Array.isArray(v)) return v.map((item) => walk(item, depth + 1));
-        const out = {};
-        for (const key of Object.keys(v)) {
-            const item = v[key];
-            if (isDateKey(key) && typeof item === 'string' && ISO.test(item)) {
-                const d = new Date(item);
-                out[key] = isNaN(d.getTime()) ? item : d;
-            } else {
-                out[key] = walk(item, depth + 1);
-            }
-        }
-        return out;
-    };
-    return walk(value, 0);
-}
-`);
-putText('functions/parseDateFields/test.js', `it('parses *_at and at keys at any depth', () => {
-    const r = parseDateFields({
-        id: 1,
-        created_at: '2026-11-20T09:15:00.000Z',
-        api_key: { expires_at: '2026-12-01T00:00:00Z' },
-        paths: [{ ordered_at: '2026-11-19T10:00:00.000Z', steps: [{ at: '2026-11-18T08:30:00+05:00', role: 'first' }] }],
-    });
-    assert.ok(r.created_at instanceof Date);
-    assert.strictEqual(r.created_at.toISOString(), '2026-11-20T09:15:00.000Z');
-    assert.ok(r.api_key.expires_at instanceof Date);
-    assert.ok(r.paths[0].ordered_at instanceof Date);
-    assert.strictEqual(r.paths[0].steps[0].at.toISOString(), '2026-11-18T03:30:00.000Z');
-    assert.strictEqual(r.paths[0].steps[0].role, 'first');
-    assert.strictEqual(r.id, 1);
-});
-
-it('leaves other values unchanged', () => {
-    const r = parseDateFields({ expires_at: null, delivery_date: '2026-11-22', updated_at: 'soon', note: '2026-11-20T09:15:00Z', created_at: '' });
-    assert.strictEqual(r.expires_at, null);
-    assert.strictEqual(r.delivery_date, '2026-11-22');
-    assert.strictEqual(r.updated_at, 'soon');
-    assert.strictEqual(r.note, '2026-11-20T09:15:00Z');
-    assert.strictEqual(r.created_at, '');
-});
-
-it('accepts empty and non-object input', () => {
-    assert.strictEqual(parseDateFields(null), null);
-    assert.strictEqual(parseDateFields(undefined), undefined);
-    assert.strictEqual(parseDateFields('x'), 'x');
-    assert.deepStrictEqual(parseDateFields([]), []);
-});
-`);
-
 // ─── RPCs (dropdowns) ─────────────────────────────────────────────────
 
 put('rpcs/listOffers/metadata.json', { label: 'List offers', accountName: CONNECTION });
@@ -480,7 +424,7 @@ const INSTANT_SPEC = [
   text('status', 'Current status'),
   text('conversion_status', 'Current conversion status'),
   bool('test', 'Test event'),
-  coll('order', 'Order (current, read from the API)', ORDER_SPEC),
+  coll('order', 'Order (current, read from the API)', NESTED_ORDER_SPEC),
 ];
 const instantApi = {
   url: '/orders/{{payload.data.order_id}}',
@@ -497,7 +441,7 @@ const instantApi = {
       status: '{{body.data.status}}',
       conversion_status: '{{body.data.conversion_status}}',
       test: '{{payload.test === true}}',
-      order: parsedNested('body.data'),
+      order: '{{body.data}}',
     },
   },
 };
@@ -545,7 +489,7 @@ const EVENT_SPEC = [
   text('status', 'Status'),
   text('previous_status', 'Previous status'),
   text('conversion_status', 'Conversion status'),
-  coll('order', 'Order', ORDER_SPEC),
+  coll('order', 'Order', NESTED_ORDER_SPEC),
 ];
 const EVENT_SAMPLE = {
   id: 778950, type: 'order.status_changed', created_at: '2026-11-22T14:02:00.000Z', order_id: 123456,
@@ -573,7 +517,7 @@ module('watchOrderEvents', {
       iterate: '{{body.data}}',
       limit: '{{parameters.limit}}',
       trigger: { id: '{{item.id}}', type: 'id', order: 'asc' },
-      output: withDates('item', ['created_at'], ['order']),
+      output: withDates('item', ['created_at']),
     },
     pagination: {
       qs: { after: '{{body.meta.next_cursor}}' },
@@ -701,14 +645,14 @@ module('setTestOrderStatus', {
     method: 'POST',
     type: 'json',
     body: { status: '{{parameters.status}}' },
-    response: { output: { '{{...}}': "{{omit(body.data, 'order')}}", order: parsedNested('body.data.order') } },
+    response: { output: '{{body.data}}' },
   },
   expect: [
     uint('order_id', 'Test order ID', { required: true, help: 'ID returned by Create an order with a test key (≥ 2000000000).' }),
     f('status', 'select', 'New status', { required: true, default: 'delivered', options: opts(Object.fromEntries(Object.entries(ORDER_STATUSES).filter(([k]) => k !== 'new'))) }),
   ],
   interface: [
-    coll('order', 'Order', ORDER_SPEC),
+    coll('order', 'Order', NESTED_ORDER_SPEC),
     text('previous_status', 'Previous status'),
     coll('webhooks', 'Webhooks', [uint('matched', 'Matched'), uint('sent', 'Sent'), uint('skipped_rate_limit', 'Skipped (rate limit)')]),
   ],
@@ -880,7 +824,7 @@ module('getCohortReport', {
 });
 
 const STEP_SPEC = [
-  date('at', 'Time'), text('role', 'Role (first, last, assist, only)'), text('partner', 'Partner (you / other)'), text('kind', 'Kind (link / landing)'),
+  isoText('at', 'Time'), text('role', 'Role (first, last, assist, only)'), text('partner', 'Partner (you / other)'), text('kind', 'Kind (link / landing)'),
   uint('link_id', 'Link ID'), text('link_name', 'Link name'), text('landing', 'Landing'), text('source', 'Source'),
   text('utm_source', 'UTM source'), text('utm_medium', 'UTM medium'), text('utm_campaign', 'UTM campaign'),
 ];
@@ -893,12 +837,11 @@ module('getAttributionReport', {
     url: '/stats/attribution',
     method: 'GET',
     qs: { date_from: fmtParam('date_from', 'YYYY-MM-DD'), date_to: fmtParam('date_to', 'YYYY-MM-DD') },
-    // body.data as returned (tracking_since is a date only, so it stays text); paths[].ordered_at and
-    // paths[].steps[].at are parsed by parseDateFields. The three meta fields are added by name.
+    // body.data as returned (tracking_since is a date only; paths[].ordered_at and paths[].steps[].at
+    // are nested ISO 8601 strings, typed as text). The three meta fields are added by name.
     response: {
       output: {
-        '{{...}}': "{{omit(body.data, 'paths')}}",
-        paths: parsedNested('body.data.paths'),
+        '{{...}}': '{{body.data}}',
         date_from: '{{body.meta.date_from}}',
         date_to: '{{body.meta.date_to}}',
         timezone: '{{body.meta.timezone}}',
@@ -926,7 +869,7 @@ module('getAttributionReport', {
       type: 'collection', label: 'Path',
       spec: [
         uint('order_id', 'Order ID'), bool('yours', 'Your order'), text('status', 'Status'), uint('offer_id', 'Offer ID'), text('offer_name', 'Offer name'),
-        date('ordered_at', 'Ordered at'), arr('steps', 'Steps', { type: 'collection', label: 'Step', spec: STEP_SPEC }),
+        isoText('ordered_at', 'Ordered at'), arr('steps', 'Steps', { type: 'collection', label: 'Step', spec: STEP_SPEC }),
       ],
     }),
   ],
@@ -943,11 +886,11 @@ module('getAccount', {
   crud: 'read',
   label: 'Get my account',
   description: 'Gets your partner account: balance, frozen balance, minimum withdrawal and the API key mode (live or test).',
-  api: { url: '/me', method: 'GET', response: { output: withDates('body.data', ['created_at'], ['api_key']) } },
+  api: { url: '/me', method: 'GET', response: { output: withDates('body.data', ['created_at']) } },
   interface: [
     uint('id', 'Account ID'), text('name', 'Name'), text('status', 'Status'), num('balance', 'Balance (UZS)'), num('balance_frozen', 'Frozen balance (UZS)'),
     num('min_withdrawal', 'Minimum withdrawal (UZS)'), text('currency', 'Currency'), date('created_at', 'Created at'),
-    coll('api_key', 'API key', [text('name', 'Name'), text('mode', 'Mode (live / test)'), arr('scopes', 'Scopes', { type: 'text' }), date('expires_at', 'Expires at')]),
+    coll('api_key', 'API key', [text('name', 'Name'), text('mode', 'Mode (live / test)'), arr('scopes', 'Scopes', { type: 'text' }), isoText('expires_at', 'Expires at')]),
   ],
   samples: {
     id: 1001, name: 'Partner name', status: 'active', balance: 350000, balance_frozen: 0, min_withdrawal: 50000, currency: 'UZS', created_at: '2026-06-01T10:00:00.000Z',

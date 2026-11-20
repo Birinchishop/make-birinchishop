@@ -31,7 +31,6 @@ offline validator. Nothing has been uploaded to Make.
 | Webhook | `orderCreated` | Dedicated, attached | attach `POST /webhooks` (`order.created`), detach `DELETE /webhooks/{id}` |
 | Webhook | `orderStatusChanged` | Dedicated, attached | same, `order.status_changed` |
 | RPC | `listOffers`, `listLinks` | Dropdown options | `GET /offers` (in stock), `GET /links`, 100 per page, limit 300 |
-| Custom IML function | `parseDateFields` | Date parsing | parses nested `*_at` / `at` timestamps (`order.*`, `api_key.expires_at`, `paths[]`) |
 | Instant trigger | `watchNewOrders` | Watch new orders | webhook `orderCreated` + `GET /orders/{id}` |
 | Instant trigger | `watchOrderStatusChanges` | Watch order status changes | webhook `orderStatusChanged` + `GET /orders/{id}` |
 | Polling trigger | `watchOrderEvents` | Watch order events | `GET /events?after={last id}&include_order=true` (no webhook needed) |
@@ -50,9 +49,11 @@ offline validator. Nothing has been uploaded to Make.
 | Universal | `makeApiCall` | Make an API call | `https://birinchishop.uz/api/` + a path that starts with the version, e.g. `/v1/offers` |
 
 Outputs return the API response as it is (`{{...}}` spread), so fields the API adds later are mappable without an
-app update. Timestamps (ISO 8601 UTC) are parsed into dates: top-level ones with `parseDate`, nested ones with the
-custom function `parseDateFields`; date-only values (`delivery_date`, `clicks_since`, `tracking_since`, cohort weeks)
-stay text. Date filters (*Created from/to*, *Date from/to*) are date fields sent as `YYYY-MM-DD`; *Updated since* is
+app update. Top-level timestamps (ISO 8601 UTC: `created_at`, `updated_at`, `event_created_at`) are parsed into dates
+with `parseDate`. Nested timestamps (`order.created_at` / `order.updated_at` in the triggers and *Set a test order
+status*, `api_key.expires_at`, `paths[].ordered_at`, `paths[].steps[].at`) stay ISO 8601 strings and are typed as text
+(parsing them key by key would need a custom IML function, which our Make plan does not include). Date-only values
+(`delivery_date`, `clicks_since`, `tracking_since`, cohort weeks) are text too. Date filters (*Created from/to*, *Date from/to*) are date fields sent as `YYYY-MM-DD`; *Updated since* is
 sent as ISO 8601. Search modules have an optional Limit (default 10, empty = all results); *Watch order events* has a
 required Limit (default 2).
 
@@ -74,7 +75,6 @@ app/
   connections/birinchishop/     parameters.imljson, api.imljson (Communication), metadata.json
   webhooks/<name>/              parameters, attach, detach, api (receiver), metadata.json
   rpcs/<name>/                  api (Communication), parameters, metadata.json
-  functions/<name>/             code.js (Code), test.js (Test) — custom IML functions
   modules/<name>/               api (Communication), parameters (Static), expect (Mappable),
                                 interface, samples, metadata.json (type, label, description, connection, webhook)
 assets/icon-512.png             app icon (512×512)
@@ -166,17 +166,18 @@ npm run check        # regenerate app/ from tools/generate.mjs, then validate
 - cross references: modules/webhooks/RPCs point to the existing connection; instant triggers point to an existing
   webhook; webhook receivers never pass on `data.order`; attach/detach use relative URLs and no own Authorization
   header; every `rpc://` exists and every RPC is used (limit ≤ 300); every `parameters.*` / `connection.*` used in IML
-  is declared; every function called in IML is a known built-in or a custom function in `app/functions`; detach reads
+  is declared; every function called in IML is a known built-in (or a custom function in `app/functions`); detach reads
   only what attach saved; secrets/Authorization are masked in logs; triggers have static parameters only,
   actions/searches mappable only; searches and polling triggers have `iterate`, `limit` and a Limit field (search:
   optional, default 10, last standard field; polling trigger: required); polling trigger has `response.trigger`;
-- output keys ↔ interface (a `{{...}}` spread may supply the rest), date-typed outputs are parsed, sample keys and
-  types ↔ interface; every module is in exactly one group;
-- custom IML functions define their name and pass their own `test.js` (run with `it` / `assert`, like Make);
+- output keys ↔ interface (a `{{...}}` spread may supply the rest), date-typed outputs are parsed with `parseDate`,
+  no nested interface field is typed date (it could not be parsed), sample keys and types ↔ interface; every module is
+  in exactly one group;
+- if `app/functions/<name>/` exists (none at present): the function defines its name and passes its own `test.js`;
 - no API keys, webhook secrets, e-mails, IP addresses or full phone numbers in the files.
 
-Current result: 118 JSON files + 2 function files, 94 sections schema-validated, 24 without an editor schema (metadata
-files and the two webhook receivers, checked by the rules above), 3 function tests, **0 problems**. This does not execute IML or call the API; see
+Current result: 118 files, 94 sections schema-validated, 24 without an editor schema (metadata files and the two
+webhook receivers, checked by the rules above), **0 problems**. This does not execute IML or call the API; see
 [Test plan](#test-plan).
 
 ## Install in Make (step by step, for the owner)
@@ -201,11 +202,7 @@ Use a Make organization/team for testing, not the production one.
 5. **RPCs** (`listOffers`, `listLinks`). *Remote procedures* → *Create a new RPC*: Name exactly `listOffers` /
    `listLinks` (the modules reference `rpc://listOffers` and `rpc://listLinks`), Label, Connection. *Communication* ←
    `rpcs/<name>/api.imljson`; *Parameters* ← `parameters.imljson`.
-6. **Functions** (`parseDateFields`). Custom IML functions are not enabled by default: ask Make's helpdesk to enable
-   them for the app if the *Functions* section is missing. *Functions* → *Create a new function*: Name exactly
-   `parseDateFields`; *Code* ← `functions/parseDateFields/code.js`; *Test* ← `functions/parseDateFields/test.js`.
-   Create it before saving modules that call it.
-7. **Modules** (16). *Modules* → *Create a new module* for each folder in `app/modules/`. Take the **type** from
+6. **Modules** (16). *Modules* → *Create a new module* for each folder in `app/modules/`. Take the **type** from
    `metadata.json` → `typeId`: 1 = Trigger (polling), 4 = Action, 9 = Search, 10 = Instant trigger, 12 = Universal
    module (REST). Name = folder name, Label/Description from `metadata.json`, Connection = step 3, and for instant
    triggers Webhook = `hookName`. Tabs:
@@ -219,9 +216,9 @@ Use a Make organization/team for testing, not the production one.
    | `samples.imljson` | Samples |
 
    For actions, `metadata.json` → `crud` is the action type (create / read / update) where the form asks for it.
-8. **Groups** (ordering in the module picker): arrange modules as in `app/groups.json` (triggers first, then
+7. **Groups** (ordering in the module picker): arrange modules as in `app/groups.json` (triggers first, then
    Search → Get → Create → Update).
-9. Build test scenarios (next section). Keep the app **private** until review.
+8. Build test scenarios (next section). Keep the app **private** until review.
 
 If you later prefer automation: the same sections can be uploaded with the Make TypeScript SDK (`@makehq/sdk`,
 `apps.create` → `setSection` per component) using a Make API key with the custom-app scopes; component types and
@@ -233,7 +230,7 @@ Use a **test key** (`bsk_test_...`) connection for everything that writes:
 
 1. Connection: valid key → label "Name (test key)"; wrong key → error shown.
 2. Scenario A: *Watch order status changes* (create the webhook in the module → it appears in Dashboard → API →
-   Webhooks). The output shows `api_version` and dates with the date icon.
+   Webhooks). The output shows `api_version`; `event_created_at` is a date, `order.created_at` / `order.updated_at` are ISO 8601 text.
 3. Scenario B (the account needs at least one real tracking link; a test key cannot create one, and Search links
    lists only real links): *Search links* → *Create an order* (test key, a real-looking number in the right format,
    idempotency key) → *Set a test order status* (`delivered`). Scenario A must run with `test: true` and the current
@@ -259,7 +256,7 @@ Make's prerequisites (from the developer docs, *App review → Prerequisites*), 
 | Module labels and descriptions per naming conventions | done, sentence case ("Watch new orders", "Create an order", "Search orders", "Get my account") |
 | Universal module | done (`makeApiCall`, URL ends before the API version) |
 | Correct interface for every module | done (whole API response spread into the output; validated against samples/output) |
-| Dates parsed in outputs and formatted in parameters | done (`parseDate`, custom function `parseDateFields`, `formatDate`) |
+| Dates parsed in outputs and formatted in parameters | done (top-level `parseDate`; nested timestamps typed text, ISO 8601; parameters `formatDate`) |
 | Limit + pagination in searches, triggers and RPCs | done (search Limit optional, default 10; polling trigger Limit required, default 2; RPCs limit 300) |
 | Each module used in a test scenario, logs without personal data, an error scenario, pagination visible in logs | **owner** — run right before requesting review (logs expire) |
 

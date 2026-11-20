@@ -3,9 +3,8 @@
   "method": "GET",
   "response": {
     "output": {
-      "{{...}}": "{{omit(body.data, 'created_at', 'api_key')}}",
-      "created_at": "{{parseDate(body.data.created_at, 'YYYY-MM-DDTHH:mm:ssZ')}}",
-      "api_key": "{{parseDateFields(body.data.api_key)}}"
+      "{{...}}": "{{omit(body.data, 'created_at')}}",
+      "created_at": "{{parseDate(body.data.created_at, 'YYYY-MM-DDTHH:mm:ssZ')}}"
     }
   }
 }

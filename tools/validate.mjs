@@ -311,15 +311,23 @@ for (const m of modules) {
     for (const k of outKeys.keys) if (!ifaceNames.has(k)) err(`${dir}/api.imljson`, `output "${k}" is not in the interface`);
     if (!outKeys.spread) for (const k of ifaceNames) if (!outKeys.keys.has(k)) err(`${dir}/interface.imljson`, `"${k}" is not produced by the output`);
   }
-  // date-typed outputs must be parsed (parseDate / parseDateFields), not passed as API strings
+  // date-typed outputs must be parsed with parseDate, not passed as API strings. A date nested in a
+  // collection/array cannot be parsed key by key (no custom IML functions), so it must be typed text.
+  const nestedDates = (list, path) => (Array.isArray(list) ? list : []).flatMap((p) => {
+    if (!p || typeof p !== 'object') return [];
+    const own = path && p.type === 'date' ? [`${path}${p.name}`] : [];
+    const kids = Array.isArray(p.spec) ? p.spec : p.spec && Array.isArray(p.spec.spec) ? p.spec.spec : [];
+    return [...own, ...nestedDates(kids, `${path}${p.name}.`)];
+  });
+  for (const k of nestedDates(iface, '')) err(`${dir}/interface.imljson`, `nested field "${k}" is typed date but cannot be parsed; type it text (ISO 8601)`);
   const dateFields = iface.filter((p) => p.type === 'date').map((p) => p.name);
-  if (dateFields.length && typeof output === 'string' && !/parseDate(Fields)?\(/.test(output)) {
+  if (dateFields.length && typeof output === 'string' && !/parseDate\(/.test(output)) {
     err(`${dir}/api.imljson`, `outputs date fields (${dateFields.join(', ')}) without parsing them`);
   }
   if (dateFields.length && outKeys) {
     for (const k of dateFields) {
       const v = output[k];
-      if (v !== undefined && !/parseDate(Fields)?\(/.test(String(v))) err(`${dir}/api.imljson`, `date field "${k}" is output without parseDate`);
+      if (v !== undefined && !/parseDate\(/.test(String(v))) err(`${dir}/api.imljson`, `date field "${k}" is output without parseDate`);
       if (v === undefined && outKeys.spread && !new RegExp(`omit\\([^)]*'${k}'`).test(output[SPREAD])) err(`${dir}/api.imljson`, `date field "${k}" comes from the spread unparsed (omit it and parse it)`);
     }
   }
