@@ -531,7 +531,7 @@ module('watchOrderEvents', {
       name: 'about',
       type: 'banner',
       title: 'Event feed',
-      text: 'Reads `GET /events` oldest first and continues after the last event this module processed, so each run gets only newer events (at most Limit per run). The feed keeps 90 days; the first run starts at the oldest kept event. Needs the `events:read` and `orders:read` scopes. Prefer the instant triggers when your key can manage webhooks.',
+      text: 'Reads `GET /events` oldest first and continues after the last event this module processed, so each run gets only newer events (at most Limit per run). The feed keeps 90 days. Use Choose where to start to pick the starting point; with All, the first run starts at the oldest kept event. Needs the `events:read` and `orders:read` scopes. Prefer the instant triggers when your key can manage webhooks.',
     },
   ],
   interface: EVENT_SPEC,

@@ -130,7 +130,7 @@ If you prefer no webhooks (key without `webhooks:manage`, or the 10-webhook limi
 events**: it polls the event feed after the last processed event ID (Make keeps that position), with the order
 included. `GET /events` supports only ascending order with an `after` cursor; because every request asks only for
 events after the last processed ID, Make's 3200-record limit for ascending triggers does not cause missed events. The
-module has no Epoch ("Choose where to start"); the feed keeps 90 days and the first run starts at the oldest kept event,
+module defines no Epoch, but Make still offers "Choose where to start"; the feed keeps 90 days and, with All, the first run starts at the oldest kept event,
 returning at most *Limit* (default 2) events per run.
 
 ## Errors
