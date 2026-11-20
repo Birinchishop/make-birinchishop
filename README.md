@@ -150,7 +150,7 @@ Use a Make organization/team for testing, not the production one.
    `app/metadata.json`: Name `birinchishop` (Make may add a suffix), Label `Birinchishop`, Description, Theme `#D4AF37`,
    Language English, Audience as offered (Global / Countries: Uzbekistan). Upload `assets/icon-512.png` as the logo.
 2. **Base.** App → *Base* tab → replace with `app/base.imljson`. Save.
-3. **Connection.** *Connections* → *Create a new connection*: Label `Birinchishop`, Type **Basic connection**. Then:
+3. **Connection.** *Connections* → *Create a new connection*: Label `Birinchishop`, Type **API Key** (in the current editor the old "Basic connection" is split into the templates API Key / Basic Auth / Other; all are the same basic type, the template code is replaced anyway). Then:
    *Communication* ← `connections/birinchishop/api.imljson`; *Parameters* ←
    `connections/birinchishop/parameters.imljson`. Note the connection's ID (e.g. `birinchishop` or
    `birinchishop-xxxxx`); if it differs from `birinchishop`, nothing in the files has to change, just pick it below.
